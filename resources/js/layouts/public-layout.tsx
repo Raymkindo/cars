@@ -40,7 +40,7 @@ export default function PublicLayout({ children, title }: PublicLayoutProps) {
                             <ul className="space-y-2 text-sm text-neutral-400">
                                 <li>Email: info@example.com</li>
                                 <li>Phone: +1 234 567 890</li>
-                                <li>Address: 123 Car Street, Auto City</li>
+                                <li>Address: 123 Kenase Japan  Street, Auto City</li>
                             </ul>
                         </div>
                         <div>
