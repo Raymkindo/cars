@@ -61,7 +61,7 @@ export default function PublicLayout({ children, title }: PublicLayoutProps) {
                         </div>
                     </div>
                     <div className="border-t border-neutral-800 mt-12 pt-8 text-center text-neutral-500 text-sm">
-                        &copy; {new Date().getFullYear()} Car Selling Website. All rights reserved.
+                        &copy; {new Date().getFullYear()} Kenase Japan | All Rights Reserved
                     </div>
                 </div>
             </footer>
