@@ -42,6 +42,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if the user is a moderator.
+     */
+    public function isModerator(): bool
+    {
+        return $this->hasRole('moderator');
+    }
+
+    /**
+     * Check if the user can manage cars (super admin or moderator).
+     */
+    public function canManageCars(): bool
+    {
+        return $this->isAdmin() || $this->isModerator();
+    }
+
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var list<string>

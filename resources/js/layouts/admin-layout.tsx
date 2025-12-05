@@ -35,13 +35,13 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                             <LayoutDashboard className="h-5 w-5" />
                             Dashboard
                         </Link>
+                        <Link href={route('admin.cars.index')} className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800">
+                            <Box className="h-5 w-5" />
+                            Cars
+                        </Link>
                         <Link href="#" className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800">
                             <Users className="h-5 w-5" />
                             Users
-                        </Link>
-                        <Link href="#" className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800">
-                            <Box className="h-5 w-5" />
-                            Listings
                         </Link>
                         <Link href="#" className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800">
                             <BarChart3 className="h-5 w-5" />
