@@ -29,9 +29,15 @@ class WelcomeController extends Controller
                 ];
             });
 
+        // Fetch hero settings
+        $heroSettings = \App\Models\SiteSetting::where('group', 'hero')->get()->mapWithKeys(function ($item) {
+            return [$item->key => $item->value];
+        });
+
         return Inertia::render('Welcome', [
             'canRegister' => Features::enabled(Features::registration()),
             'featuredCars' => $featuredCars,
+            'heroSettings' => $heroSettings,
         ]);
     }
 }

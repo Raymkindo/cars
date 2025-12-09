@@ -81,7 +81,7 @@ class Car extends Model
     {
         return $query->where('status', 'available')
                      ->orderBy('created_at', 'desc')
-                     ->limit(6);
+                     ->limit(8);
     }
 
     /**

@@ -24,6 +24,7 @@ interface CarListingProps {
             primary_image?: {
                 image_path: string;
             };
+            created_at: string;
             user?: {
                 name: string;
             };
@@ -112,7 +113,7 @@ export default function CarsIndex({ cars, filters }: CarListingProps) {
                     </div>
                 </Card>
 
-                {/* Cars Grid */}
+                {/* Cars List */}
                 {cars.data.length === 0 ? (
                     <Card className="p-12">
                         <div className="text-center">
@@ -142,6 +143,7 @@ export default function CarsIndex({ cars, filters }: CarListingProps) {
                                         <TableHead>Car Details</TableHead>
                                         <TableHead>Status</TableHead>
                                         <TableHead>Price</TableHead>
+                                        <TableHead>Date Added</TableHead>
                                         <TableHead>Seller</TableHead>
                                         <TableHead className="text-right">Actions</TableHead>
                                     </TableRow>
@@ -178,6 +180,9 @@ export default function CarsIndex({ cars, filters }: CarListingProps) {
                                                 </span>
                                             </TableCell>
                                             <TableCell>${car.price.toLocaleString()}</TableCell>
+                                            <TableCell className="text-sm text-muted-foreground">
+                                                {new Date(car.created_at).toLocaleDateString()}
+                                            </TableCell>
                                             <TableCell>{car.user?.name || 'N/A'}</TableCell>
                                             <TableCell className="text-right">
                                                 <div className="flex justify-end gap-2">

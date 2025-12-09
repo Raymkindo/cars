@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BarChart3, Box, Home, LayoutDashboard, LogOut, Settings, Users } from 'lucide-react';
+import { BarChart3, Box, Home, LayoutDashboard, LogOut, Palette, Settings, Users } from 'lucide-react';
 import { PropsWithChildren } from 'react';
 import { SharedData } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -47,9 +47,9 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                             <BarChart3 className="h-5 w-5" />
                             Analytics
                         </Link>
-                        <Link href="#" className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800">
-                            <Settings className="h-5 w-5" />
-                            Settings
+                        <Link href={route('admin.appearance.index')} className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800">
+                            <Palette className="h-5 w-5" />
+                            Appearance
                         </Link>
                     </nav>
                 </div>

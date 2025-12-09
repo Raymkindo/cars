@@ -47,6 +47,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/cars', [\App\Http\Controllers\CarController::class, 'manage'])->name('cars.index');
     Route::get('/cars/create', [\App\Http\Controllers\CarController::class, 'create'])->name('cars.create');
     Route::get('/cars/{car}/edit', [\App\Http\Controllers\CarController::class, 'edit'])->name('cars.edit');
+
+    // Appearance
+    Route::get('/appearance', [\App\Http\Controllers\AppearanceController::class, 'index'])->name('appearance.index');
+    Route::post('/appearance', [\App\Http\Controllers\AppearanceController::class, 'update'])->name('appearance.update');
 });
 
 // Moderator dashboard (car dealers)

@@ -16,9 +16,24 @@ interface Car {
 interface WelcomeProps {
     canRegister: boolean;
     featuredCars: Car[];
+    heroSettings?: {
+        hero_title?: string;
+        hero_subtitle?: string;
+        hero_image?: string;
+        hero_cta_text?: string;
+    };
 }
 
-export default function Welcome({ canRegister, featuredCars }: WelcomeProps) {
+export default function Welcome({ canRegister, featuredCars, heroSettings }: WelcomeProps) {
+    const defaultSettings = {
+        hero_title: 'Find Your Dream Car <br /> <span class="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-500 bg-clip-text text-transparent">From Japan</span>',
+        hero_subtitle: 'Premium quality used cars with global shipping. <span class="text-yellow-400 font-semibold">Over 10,000+ vehicles</span> in stock.',
+        hero_image: '/images/hero-port-cars-v3.png',
+        hero_cta_text: 'Browse Stock',
+    };
+
+    const settings = { ...defaultSettings, ...heroSettings };
+
     return (
         <PublicLayout title="Home">
             {/* Enhanced Hero Section with Gradient */}
@@ -34,8 +49,8 @@ export default function Welcome({ canRegister, featuredCars }: WelcomeProps) {
                 {/* Hero Car Image */}
                 <div className="absolute inset-0 overflow-hidden">
                     <img
-                        src="/images/hero-port-cars-v3.png"
-                        alt="Cars Loading on RORO Ship"
+                        src={settings.hero_image}
+                        alt="Hero Background"
                         className="w-full h-full object-cover opacity-90"
                     />
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-900/60 via-blue-800/40 to-transparent" />
@@ -49,20 +64,18 @@ export default function Welcome({ canRegister, featuredCars }: WelcomeProps) {
                             <span className="text-sm font-medium">Trusted Worldwide Car Exporter</span>
                         </div>
 
-                        <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-                            Find Your Dream Car
-                            <br />
-                            <span className="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-500 bg-clip-text text-transparent">
-                                From Japan
-                            </span>
-                        </h1>
-                        <p className="text-xl md:text-2xl text-blue-100 mb-8 leading-relaxed">
-                            Premium quality used cars with global shipping.
-                            <span className="text-yellow-400 font-semibold"> Over 10,000+ vehicles</span> in stock.
-                        </p>
+                        <h1
+                            className="text-5xl md:text-7xl font-bold mb-6 leading-tight"
+                            dangerouslySetInnerHTML={{ __html: settings.hero_title }}
+                        />
+                        <p
+                            className="text-xl md:text-2xl text-blue-100 mb-8 leading-relaxed"
+                            dangerouslySetInnerHTML={{ __html: settings.hero_subtitle }}
+                        />
+
                         <div className="flex flex-wrap gap-4">
                             <Button size="lg" className="text-lg px-8 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white border-0 shadow-xl">
-                                Browse Stock
+                                {settings.hero_cta_text}
                                 <ArrowRight className="ml-2 h-5 w-5" />
                             </Button>
                             <Button size="lg" variant="outline" className="text-lg px-8 bg-white/10 border-white/30 hover:bg-white/20 text-white backdrop-blur-sm">
@@ -224,15 +237,17 @@ export default function Welcome({ canRegister, featuredCars }: WelcomeProps) {
 
                         {/* Featured Vehicles Grid */}
                         <div className="lg:col-span-3">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                 {featuredCars.map((car) => (
                                     <div key={car.id} className="group bg-white dark:bg-neutral-900 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-neutral-200 dark:border-neutral-800">
                                         <div className="aspect-[4/3] bg-neutral-200 dark:bg-neutral-800 relative overflow-hidden">
-                                            <img
-                                                src={car.image}
-                                                alt={car.name}
-                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                            />
+                                            <Link href={route('cars.show', car.id)}>
+                                                <img
+                                                    src={car.image}
+                                                    alt={car.name}
+                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                />
+                                            </Link>
                                             {car.badge && (
                                                 <div className="absolute top-4 left-4 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
                                                     {car.badge}
@@ -243,15 +258,19 @@ export default function Welcome({ canRegister, featuredCars }: WelcomeProps) {
                                             </div>
                                         </div>
                                         <div className="p-6">
-                                            <h3 className="font-bold text-xl mb-2 group-hover:text-primary transition-colors">{car.name}</h3>
+                                            <Link href={route('cars.show', car.id)} className="block">
+                                                <h3 className="font-bold text-xl mb-2 group-hover:text-primary transition-colors">{car.name}</h3>
+                                            </Link>
                                             <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">{car.details}</p>
                                             <div className="flex items-center justify-between">
                                                 <div>
                                                     <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{car.price}</div>
                                                     <div className="text-xs text-neutral-400">FOB Price</div>
                                                 </div>
-                                                <Button size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-                                                    View Details
+                                                <Button size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700" asChild>
+                                                    <Link href={route('cars.show', car.id)}>
+                                                        View Details
+                                                    </Link>
                                                 </Button>
                                             </div>
                                         </div>
