@@ -1,4 +1,4 @@
-import { useForm } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -35,7 +35,8 @@ interface CarFormProps {
 }
 
 export default function CarForm({ car, onSubmit, processing }: CarFormProps) {
-    const { data, setData, errors } = useForm({
+    const { errors: pageErrors } = usePage().props;
+    const { data, setData, errors: formErrors } = useForm({
         make: car?.make || '',
         model: car?.model || '',
         year: car?.year || new Date().getFullYear(),
@@ -52,6 +53,9 @@ export default function CarForm({ car, onSubmit, processing }: CarFormProps) {
         status: car?.status || 'available',
         images: [] as File[],
     });
+
+    // Merge form errors with page errors (from parent router.post)
+    const errors = { ...formErrors, ...pageErrors };
 
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 

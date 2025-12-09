@@ -4,11 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canRegister' => Features::enabled(Features::registration()),
-    ]);
-})->name('home');
+Route::get('/', \App\Http\Controllers\WelcomeController::class)->name('home');
 
 Route::get('/about', function () {
     return Inertia::render('AboutUs');
@@ -19,6 +15,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
 });
+
+// Public API routes for cars (returns View)
+Route::get('/cars', [\App\Http\Controllers\PublicCarController::class, 'index'])->name('cars.index');
+Route::get('/cars/{car}', [\App\Http\Controllers\PublicCarController::class, 'show'])->name('cars.show');
 
 // Public API routes for cars (no authentication required)
 Route::prefix('api')->group(function () {

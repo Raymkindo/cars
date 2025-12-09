@@ -13,7 +13,7 @@ class AdminUserSeeder extends Seeder
     public function run(): void
     {
         \App\Models\User::create([
-            'name' => 'Super Admin',
+            'name' => 'SuperAdmin',
             'email' => 'admin@example.com',
             'password' => bcrypt('password'),
             'role' => 'super_admin',

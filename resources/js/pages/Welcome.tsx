@@ -1,9 +1,24 @@
 import PublicLayout from '@/layouts/public-layout';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Car, CheckCircle, Globe, Package, Shield, Ship, Truck, Tag, Zap, Clock, Percent } from 'lucide-react';
 
-export default function Welcome() {
+interface Car {
+    id: number;
+    name: string;
+    price: string;
+    details: string;
+    ref: string;
+    image: string;
+    badge?: string;
+}
+
+interface WelcomeProps {
+    canRegister: boolean;
+    featuredCars: Car[];
+}
+
+export default function Welcome({ canRegister, featuredCars }: WelcomeProps) {
     return (
         <PublicLayout title="Home">
             {/* Enhanced Hero Section with Gradient */}
@@ -19,14 +34,14 @@ export default function Welcome() {
                 {/* Hero Car Image */}
                 <div className="absolute inset-0 overflow-hidden">
                     <img
-                        src="/images/hero-port-cars.png"
-                        alt="Premium Cars at Port"
+                        src="/images/hero-port-cars-v3.png"
+                        alt="Cars Loading on RORO Ship"
                         className="w-full h-full object-cover opacity-90"
                     />
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-900/60 via-blue-800/40 to-transparent" />
                 </div>
 
-                <div className="relative container mx-auto px-4 py-28 md:py-36">
+                <div className="relative container mx-auto px-4 py-20 md:py-24">
                     <div className="max-w-3xl">
                         {/* Badge */}
                         <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6">
@@ -88,46 +103,63 @@ export default function Welcome() {
                         <Car className="h-6 w-6 text-primary" />
                         Search for Your Perfect Car
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                        <select className="flex h-11 w-full items-center justify-between rounded-lg border-2 border-neutral-200 dark:border-neutral-700 bg-background px-4 py-2 text-sm font-medium hover:border-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            const formData = new FormData(e.currentTarget);
+                            const params = new URLSearchParams();
+                            formData.forEach((value, key) => {
+                                if (value && value !== 'Select Make' && value !== 'Select Model' && value !== 'Year From' && value !== 'Body Type' && value !== 'Price Range') {
+                                    params.append(key, value as string);
+                                }
+                            });
+                            window.location.href = route('cars.index', params.toString());
+                        }}
+                        className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4"
+                    >
+                        <select name="make" className="flex h-11 w-full items-center justify-between rounded-lg border-2 border-neutral-200 dark:border-neutral-700 bg-background px-4 py-2 text-sm font-medium hover:border-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
                             <option>Select Make</option>
-                            <option>Toyota</option>
-                            <option>Nissan</option>
-                            <option>Honda</option>
-                            <option>Mazda</option>
-                            <option>BMW</option>
-                            <option>Mercedes-Benz</option>
+                            <option value="Toyota">Toyota</option>
+                            <option value="Nissan">Nissan</option>
+                            <option value="Honda">Honda</option>
+                            <option value="Mazda">Mazda</option>
+                            <option value="BMW">BMW</option>
+                            <option value="Mercedes-Benz">Mercedes-Benz</option>
                         </select>
-                        <select className="flex h-11 w-full items-center justify-between rounded-lg border-2 border-neutral-200 dark:border-neutral-700 bg-background px-4 py-2 text-sm font-medium hover:border-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <select name="model" className="flex h-11 w-full items-center justify-between rounded-lg border-2 border-neutral-200 dark:border-neutral-700 bg-background px-4 py-2 text-sm font-medium hover:border-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
                             <option>Select Model</option>
+                            <option value="Harrier">Harrier</option>
+                            <option value="X-Trail">X-Trail</option>
+                            <option value="CR-V">CR-V</option>
+                            <option value="CX-5">CX-5</option>
                         </select>
-                        <select className="flex h-11 w-full items-center justify-between rounded-lg border-2 border-neutral-200 dark:border-neutral-700 bg-background px-4 py-2 text-sm font-medium hover:border-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <select name="year_from" className="flex h-11 w-full items-center justify-between rounded-lg border-2 border-neutral-200 dark:border-neutral-700 bg-background px-4 py-2 text-sm font-medium hover:border-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
                             <option>Year From</option>
-                            <option>2024</option>
-                            <option>2023</option>
-                            <option>2022</option>
-                            <option>2021</option>
-                            <option>2020</option>
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                            <option value="2022">2022</option>
+                            <option value="2021">2021</option>
+                            <option value="2020">2020</option>
                         </select>
-                        <select className="flex h-11 w-full items-center justify-between rounded-lg border-2 border-neutral-200 dark:border-neutral-700 bg-background px-4 py-2 text-sm font-medium hover:border-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <select name="body_type" className="flex h-11 w-full items-center justify-between rounded-lg border-2 border-neutral-200 dark:border-neutral-700 bg-background px-4 py-2 text-sm font-medium hover:border-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
                             <option>Body Type</option>
-                            <option>SUV</option>
-                            <option>Sedan</option>
-                            <option>Truck</option>
-                            <option>Hatchback</option>
-                            <option>Van</option>
+                            <option value="SUV">SUV</option>
+                            <option value="Sedan">Sedan</option>
+                            <option value="Truck">Truck</option>
+                            <option value="Hatchback">Hatchback</option>
+                            <option value="Van">Van</option>
                         </select>
-                        <select className="flex h-11 w-full items-center justify-between rounded-lg border-2 border-neutral-200 dark:border-neutral-700 bg-background px-4 py-2 text-sm font-medium hover:border-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <select name="price_max" className="flex h-11 w-full items-center justify-between rounded-lg border-2 border-neutral-200 dark:border-neutral-700 bg-background px-4 py-2 text-sm font-medium hover:border-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
                             <option>Price Range</option>
-                            <option>Under $10,000</option>
-                            <option>$10,000 - $20,000</option>
-                            <option>$20,000 - $30,000</option>
-                            <option>Above $30,000</option>
+                            <option value="10000">Under $10,000</option>
+                            <option value="20000">Under $20,000</option>
+                            <option value="30000">Under $30,000</option>
+                            <option value="50000">Under $50,000</option>
                         </select>
-                        <Button className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-lg">
+                        <Button type="submit" className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-lg">
                             Search Now
                         </Button>
-                    </div>
+                    </form>
                 </div>
             </div>
 
@@ -156,16 +188,16 @@ export default function Welcome() {
                                 <ul className="space-y-2">
                                     {['Toyota', 'Nissan', 'Honda', 'Mazda', 'BMW'].map((make) => (
                                         <li key={make}>
-                                            <a href="#" className="flex items-center justify-between px-3 py-2 rounded-lg text-neutral-700 dark:text-neutral-300 hover:bg-white dark:hover:bg-neutral-800 hover:text-primary transition-all group">
+                                            <Link href={route('cars.index', { make })} className="flex items-center justify-between px-3 py-2 rounded-lg text-neutral-700 dark:text-neutral-300 hover:bg-white dark:hover:bg-neutral-800 hover:text-primary transition-all group">
                                                 <span className="font-medium">{make}</span>
                                                 <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                            </a>
+                                            </Link>
                                         </li>
                                     ))}
                                 </ul>
-                                <Button variant="link" className="mt-4 p-0 h-auto text-primary font-semibold">
-                                    View All Makes →
-                                </Button>
+                                <Link href={route('cars.index')} className="mt-4 p-0 h-auto text-primary font-semibold flex items-center hover:underline">
+                                    View All Makes <ArrowRight className="ml-1 h-3 w-3" />
+                                </Link>
                             </div>
 
                             {/* Shop By Body Type */}
@@ -177,93 +209,23 @@ export default function Welcome() {
                                 <ul className="space-y-2">
                                     {['SUV', 'Sedan', 'Hatchback', 'Truck', 'Van'].map((bodyType) => (
                                         <li key={bodyType}>
-                                            <a href="#" className="flex items-center justify-between px-3 py-2 rounded-lg text-neutral-700 dark:text-neutral-300 hover:bg-white dark:hover:bg-neutral-800 hover:text-primary transition-all group">
+                                            <Link href={route('cars.index', { body_type: bodyType })} className="flex items-center justify-between px-3 py-2 rounded-lg text-neutral-700 dark:text-neutral-300 hover:bg-white dark:hover:bg-neutral-800 hover:text-primary transition-all group">
                                                 <span className="font-medium">{bodyType}</span>
                                                 <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                            </a>
+                                            </Link>
                                         </li>
                                     ))}
                                 </ul>
-                                <Button variant="link" className="mt-4 p-0 h-auto text-primary font-semibold">
-                                    View All Types →
-                                </Button>
+                                <Link href={route('cars.index')} className="mt-4 p-0 h-auto text-primary font-semibold flex items-center hover:underline">
+                                    View All Types <ArrowRight className="ml-1 h-3 w-3" />
+                                </Link>
                             </div>
                         </div>
 
                         {/* Featured Vehicles Grid */}
                         <div className="lg:col-span-3">
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                                {[
-                                    {
-                                        id: 1,
-                                        name: 'Toyota Harrier 2020',
-                                        price: '$24,500',
-                                        details: '2.0L Petrol • Automatic • 45,000 km',
-                                        ref: 'BF12345',
-                                        image: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?q=80&w=800&auto=format&fit=crop',
-                                        badge: 'Popular'
-                                    },
-                                    {
-                                        id: 2,
-                                        name: 'Nissan X-Trail 2019',
-                                        price: '$18,200',
-                                        details: '2.5L Petrol • CVT • 52,000 km',
-                                        ref: 'BF67890',
-                                        image: 'https://images.unsplash.com/photo-1503376763036-066120622c74?q=80&w=800&auto=format&fit=crop',
-                                        badge: 'Best Value'
-                                    },
-                                    {
-                                        id: 3,
-                                        name: 'Honda CR-V 2021',
-                                        price: '$26,900',
-                                        details: '1.5L Turbo • Automatic • 30,000 km',
-                                        ref: 'BF11223',
-                                        image: 'https://images.unsplash.com/photo-1568844293986-8d0400bd4745?q=80&w=800&auto=format&fit=crop',
-                                        badge: 'New Arrival'
-                                    },
-                                    {
-                                        id: 4,
-                                        name: 'Mazda CX-5 2022',
-                                        price: '$28,500',
-                                        details: '2.2L Diesel • Automatic • 15,000 km',
-                                        ref: 'BF44556',
-                                        image: 'https://images.unsplash.com/photo-1570375231770-53b4553320f0?q=80&w=800&auto=format&fit=crop'
-                                    },
-                                    {
-                                        id: 5,
-                                        name: 'Subaru Forester 2021',
-                                        price: '$25,800',
-                                        details: '2.5L Petrol • CVT • 28,000 km',
-                                        ref: 'BF77889',
-                                        image: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?q=80&w=800&auto=format&fit=crop'
-                                    },
-                                    {
-                                        id: 6,
-                                        name: 'Mitsubishi Outlander 2022',
-                                        price: '$29,500',
-                                        details: '2.4L Hybrid • Automatic • 12,000 km',
-                                        ref: 'BF99001',
-                                        image: 'https://images.unsplash.com/photo-1619682817481-e994891cd1f5?q=80&w=800&auto=format&fit=crop'
-                                    },
-                                    {
-                                        id: 7,
-                                        name: 'Toyota RAV4 2023',
-                                        price: '$32,800',
-                                        details: '2.5L Hybrid • Automatic • 8,000 km',
-                                        ref: 'BF33445',
-                                        image: 'https://images.unsplash.com/photo-1609521263047-f8f205293f24?q=80&w=800&auto=format&fit=crop',
-                                        badge: 'Eco-Friendly'
-                                    },
-                                    {
-                                        id: 8,
-                                        name: 'Lexus NX 2022',
-                                        price: '$38,900',
-                                        details: '2.0L Turbo • Automatic • 18,000 km',
-                                        ref: 'BF55667',
-                                        image: 'https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?q=80&w=800&auto=format&fit=crop',
-                                        badge: 'Luxury'
-                                    }
-                                ].map((car) => (
+                                {featuredCars.map((car) => (
                                     <div key={car.id} className="group bg-white dark:bg-neutral-900 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-neutral-200 dark:border-neutral-800">
                                         <div className="aspect-[4/3] bg-neutral-200 dark:bg-neutral-800 relative overflow-hidden">
                                             <img
@@ -335,9 +297,10 @@ export default function Welcome() {
                             { name: 'Lexus', count: '450+', color: 'from-neutral-800 to-neutral-900' },
                             { name: 'Porsche', count: '200+', color: 'from-yellow-600 to-orange-600' }
                         ].map((brand, index) => (
-                            <div
+                            <Link
                                 key={index}
-                                className="group relative bg-white dark:bg-neutral-800 rounded-xl p-6 shadow-md hover:shadow-xl transition-all duration-300 border border-neutral-200 dark:border-neutral-700 hover:border-transparent cursor-pointer overflow-hidden"
+                                href={route('cars.index', { make: brand.name })}
+                                className="group relative bg-white dark:bg-neutral-800 rounded-xl p-6 shadow-md hover:shadow-xl transition-all duration-300 border border-neutral-200 dark:border-neutral-700 hover:border-transparent cursor-pointer overflow-hidden block"
                             >
                                 {/* Gradient Background on Hover */}
                                 <div className={`absolute inset-0 bg-gradient-to-br ${brand.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
@@ -359,14 +322,14 @@ export default function Welcome() {
                                 <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <ArrowRight className="h-5 w-5 text-white" />
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
 
                     <div className="text-center mt-8">
-                        <Button variant="link" className="text-primary font-semibold">
-                            View All Brands →
-                        </Button>
+                        <Link href={route('cars.index')} className="text-primary font-semibold hover:underline flex items-center justify-center">
+                            View All Brands <ArrowRight className="ml-1 h-4 w-4" />
+                        </Link>
                     </div>
                 </div>
             </div>

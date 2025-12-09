@@ -1,6 +1,7 @@
 import AdminLayout from '@/layouts/admin-layout';
 import { Head, router } from '@inertiajs/react';
 import CarForm from '@/components/car-form';
+import { useState } from 'react';
 
 interface EditCarProps {
     car: {
@@ -28,12 +29,17 @@ interface EditCarProps {
 }
 
 export default function EditCar({ car }: EditCarProps) {
+    const [processing, setProcessing] = useState(false);
+
     const handleSubmit = (data: any) => {
         router.post(route('cars.update', car.id), {
             ...data,
             _method: 'PUT',
         }, {
             forceFormData: true,
+            preserveScroll: true,
+            onStart: () => setProcessing(true),
+            onFinish: () => setProcessing(false),
             onSuccess: () => {
                 // Redirect handled by controller
             },
@@ -55,7 +61,7 @@ export default function EditCar({ car }: EditCarProps) {
                 <CarForm
                     car={car}
                     onSubmit={handleSubmit}
-                    processing={false}
+                    processing={processing}
                 />
             </div>
         </AdminLayout>

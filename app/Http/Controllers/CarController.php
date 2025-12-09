@@ -178,7 +178,8 @@ class CarController extends Controller
             $this->handleImageUploads($car, $request->file('images'));
         }
 
-        return redirect()->back()->with('success', 'Car added successfully.');
+        $routePrefix = $request->user()->isAdmin() ? 'admin' : 'moderator';
+        return redirect()->route($routePrefix . '.cars.index')->with('success', 'Car added successfully.');
     }
 
     /**
