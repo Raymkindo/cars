@@ -19,11 +19,11 @@ export default function Welcome() {
                 {/* Hero Car Image */}
                 <div className="absolute inset-0 overflow-hidden">
                     <img
-                        src="/images/hero-cars.png"
-                        alt="Premium Cars"
-                        className="w-full h-full object-cover opacity-30 mix-blend-overlay"
+                        src="/images/hero-port-cars.png"
+                        alt="Premium Cars at Port"
+                        className="w-full h-full object-cover opacity-90"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 via-blue-800/70 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-900/60 via-blue-800/40 to-transparent" />
                 </div>
 
                 <div className="relative container mx-auto px-4 py-28 md:py-36">
