@@ -50,11 +50,35 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if the user can manage cars (super admin or moderator).
+     * Check if the user is a dealer/seller.
+     */
+    public function isDealer(): bool
+    {
+        return $this->hasRole('dealer');
+    }
+
+    /**
+     * Check if the user is a buyer (normal user).
+     */
+    public function isBuyer(): bool
+    {
+        return $this->hasRole('buyer');
+    }
+
+    /**
+     * Check if the user can list/manage cars (admin, moderator, or dealer).
      */
     public function canManageCars(): bool
     {
-        return $this->isAdmin() || $this->isModerator();
+        return $this->isAdmin() || $this->isModerator() || $this->isDealer();
+    }
+
+    /**
+     * Check if the user can browse and inquire about cars (any role).
+     */
+    public function canBrowseCars(): bool
+    {
+        return true; // All authenticated users can browse
     }
 
     /**

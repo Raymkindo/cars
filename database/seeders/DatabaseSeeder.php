@@ -2,26 +2,21 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.
+     *
+     * Order matters: UserSeeder must run before CarSeeder so that
+     * dealer accounts exist when cars are assigned.
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::firstOrCreate(
-            ['email' => 'test@example.com'],
-            [
-                'name' => 'Test User',
-                'password' => 'password',
-                'email_verified_at' => now(),
-            ]
-        );
+        $this->call([
+            UserSeeder::class, // creates super_admin, dealers, buyers
+            CarSeeder::class,  // assigns 50 cars across dealer accounts
+        ]);
     }
 }

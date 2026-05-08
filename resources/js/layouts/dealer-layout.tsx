@@ -1,15 +1,11 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     Car,
-    BarChart3,
     Home,
     LayoutDashboard,
     LogOut,
-    Palette,
     Plus,
-    Settings,
-    Users,
-    Shield,
+    Store,
 } from 'lucide-react';
 import { PropsWithChildren } from 'react';
 import { SharedData } from '@/types';
@@ -48,7 +44,7 @@ function NavLink({ href, icon, label, active }: NavLinkProps) {
     );
 }
 
-export default function AdminLayout({ children }: PropsWithChildren) {
+export default function DealerLayout({ children }: PropsWithChildren) {
     const { auth } = usePage<SharedData>().props;
     const getInitials = useInitials();
     const currentPath = window.location.pathname;
@@ -58,49 +54,44 @@ export default function AdminLayout({ children }: PropsWithChildren) {
             {/* Sidebar */}
             <aside className="w-64 bg-white dark:bg-neutral-950 border-r border-neutral-200 dark:border-neutral-800 flex-shrink-0 hidden md:flex flex-col">
                 <div className="h-16 flex items-center px-6 border-b border-neutral-200 dark:border-neutral-800">
-                    <Link href="/admin/dashboard" className="flex items-center gap-2 font-bold text-xl">
-                        <Shield className="h-6 w-6 text-primary" />
-                        <span>Admin Panel</span>
+                    <Link href="/dealer/dashboard" className="flex items-center gap-2 font-bold text-xl">
+                        <Store className="h-6 w-6 text-primary" />
+                        <span>Dealer Hub</span>
                     </Link>
                 </div>
 
                 <div className="flex-1 overflow-y-auto py-4">
                     <p className="px-4 text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-2">
-                        Platform
+                        My Showroom
                     </p>
                     <nav className="px-4 space-y-1">
                         <NavLink
-                            href="/admin/dashboard"
+                            href="/dealer/dashboard"
                             icon={<LayoutDashboard className="h-5 w-5" />}
                             label="Dashboard"
-                            active={currentPath === '/admin/dashboard'}
+                            active={currentPath === '/dealer/dashboard'}
                         />
                         <NavLink
-                            href={route('admin.cars.index')}
+                            href={route('dealer.cars.index')}
                             icon={<Car className="h-5 w-5" />}
-                            label="All Cars"
-                            active={currentPath.startsWith('/admin/cars')}
+                            label="My Listings"
+                            active={currentPath.startsWith('/dealer/cars')}
                         />
                         <NavLink
-                            href="#"
-                            icon={<Users className="h-5 w-5" />}
-                            label="Users"
+                            href={route('dealer.cars.create')}
+                            icon={<Plus className="h-5 w-5" />}
+                            label="Add New Car"
                         />
+                    </nav>
+
+                    <p className="px-4 text-xs font-semibold uppercase tracking-widest text-neutral-400 mt-6 mb-2">
+                        Explore
+                    </p>
+                    <nav className="px-4 space-y-1">
                         <NavLink
-                            href="#"
-                            icon={<BarChart3 className="h-5 w-5" />}
-                            label="Analytics"
-                        />
-                        <NavLink
-                            href={route('admin.appearance.index')}
-                            icon={<Palette className="h-5 w-5" />}
-                            label="Appearance"
-                            active={currentPath.startsWith('/admin/appearance')}
-                        />
-                        <NavLink
-                            href="#"
-                            icon={<Settings className="h-5 w-5" />}
-                            label="Settings"
+                            href="/cars"
+                            icon={<Car className="h-5 w-5" />}
+                            label="Browse Marketplace"
                         />
                     </nav>
                 </div>
@@ -115,17 +106,17 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                 {/* Header */}
                 <header className="h-16 bg-white dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between px-4 md:px-8">
                     <div className="flex items-center gap-3">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
-                            <Shield className="h-3 w-3" />
-                            Super Admin
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                            <Store className="h-3 w-3" />
+                            Dealer
                         </span>
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <Button variant="outline" size="sm" asChild>
-                            <Link href={route('admin.cars.create')}>
+                        <Button size="sm" asChild>
+                            <Link href={route('dealer.cars.create')}>
                                 <Plus className="h-4 w-4 mr-1" />
-                                Add Car
+                                Add Listing
                             </Link>
                         </Button>
 

@@ -1,15 +1,11 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     Car,
-    BarChart3,
     Home,
     LayoutDashboard,
     LogOut,
-    Palette,
-    Plus,
-    Settings,
-    Users,
-    Shield,
+    Search,
+    User,
 } from 'lucide-react';
 import { PropsWithChildren } from 'react';
 import { SharedData } from '@/types';
@@ -48,7 +44,7 @@ function NavLink({ href, icon, label, active }: NavLinkProps) {
     );
 }
 
-export default function AdminLayout({ children }: PropsWithChildren) {
+export default function BuyerLayout({ children }: PropsWithChildren) {
     const { auth } = usePage<SharedData>().props;
     const getInitials = useInitials();
     const currentPath = window.location.pathname;
@@ -58,55 +54,41 @@ export default function AdminLayout({ children }: PropsWithChildren) {
             {/* Sidebar */}
             <aside className="w-64 bg-white dark:bg-neutral-950 border-r border-neutral-200 dark:border-neutral-800 flex-shrink-0 hidden md:flex flex-col">
                 <div className="h-16 flex items-center px-6 border-b border-neutral-200 dark:border-neutral-800">
-                    <Link href="/admin/dashboard" className="flex items-center gap-2 font-bold text-xl">
-                        <Shield className="h-6 w-6 text-primary" />
-                        <span>Admin Panel</span>
+                    <Link href="/buyer/dashboard" className="flex items-center gap-2 font-bold text-xl">
+                        <Car className="h-6 w-6 text-primary" />
+                        <span>CarsMarket</span>
                     </Link>
                 </div>
 
                 <div className="flex-1 overflow-y-auto py-4">
                     <p className="px-4 text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-2">
-                        Platform
+                        My Account
                     </p>
                     <nav className="px-4 space-y-1">
                         <NavLink
-                            href="/admin/dashboard"
+                            href="/buyer/dashboard"
                             icon={<LayoutDashboard className="h-5 w-5" />}
                             label="Dashboard"
-                            active={currentPath === '/admin/dashboard'}
+                            active={currentPath === '/buyer/dashboard'}
                         />
+                    </nav>
+
+                    <p className="px-4 text-xs font-semibold uppercase tracking-widest text-neutral-400 mt-6 mb-2">
+                        Browse
+                    </p>
+                    <nav className="px-4 space-y-1">
                         <NavLink
-                            href={route('admin.cars.index')}
-                            icon={<Car className="h-5 w-5" />}
-                            label="All Cars"
-                            active={currentPath.startsWith('/admin/cars')}
-                        />
-                        <NavLink
-                            href="#"
-                            icon={<Users className="h-5 w-5" />}
-                            label="Users"
-                        />
-                        <NavLink
-                            href="#"
-                            icon={<BarChart3 className="h-5 w-5" />}
-                            label="Analytics"
-                        />
-                        <NavLink
-                            href={route('admin.appearance.index')}
-                            icon={<Palette className="h-5 w-5" />}
-                            label="Appearance"
-                            active={currentPath.startsWith('/admin/appearance')}
-                        />
-                        <NavLink
-                            href="#"
-                            icon={<Settings className="h-5 w-5" />}
-                            label="Settings"
+                            href="/cars"
+                            icon={<Search className="h-5 w-5" />}
+                            label="Browse All Cars"
+                            active={currentPath === '/cars'}
                         />
                     </nav>
                 </div>
 
-                <div className="p-4 border-t border-neutral-200 dark:border-neutral-800">
-                    <NavLink href="/" icon={<Home className="h-5 w-5" />} label="Back to Site" />
+                <div className="p-4 border-t border-neutral-200 dark:border-neutral-800 space-y-1">
+                    <NavLink href="/settings/profile" icon={<User className="h-5 w-5" />} label="My Profile" />
+                    <NavLink href="/" icon={<Home className="h-5 w-5" />} label="Back to Home" />
                 </div>
             </aside>
 
@@ -115,17 +97,17 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                 {/* Header */}
                 <header className="h-16 bg-white dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between px-4 md:px-8">
                     <div className="flex items-center gap-3">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
-                            <Shield className="h-3 w-3" />
-                            Super Admin
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                            <User className="h-3 w-3" />
+                            Buyer
                         </span>
                     </div>
 
                     <div className="flex items-center gap-4">
                         <Button variant="outline" size="sm" asChild>
-                            <Link href={route('admin.cars.create')}>
-                                <Plus className="h-4 w-4 mr-1" />
-                                Add Car
+                            <Link href="/cars">
+                                <Search className="h-4 w-4 mr-1" />
+                                Browse Cars
                             </Link>
                         </Button>
 

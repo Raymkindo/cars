@@ -2,87 +2,117 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use Laravel\Fortify\Features;
 
+// ── Public routes ────────────────────────────────────────────────────────────
 Route::get('/', \App\Http\Controllers\WelcomeController::class)->name('home');
 
 Route::get('/about', function () {
     return Inertia::render('AboutUs');
 })->name('about');
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
-});
-
-// Public API routes for cars (returns View)
 Route::get('/cars', [\App\Http\Controllers\PublicCarController::class, 'index'])->name('cars.index');
 Route::get('/cars/{car}', [\App\Http\Controllers\PublicCarController::class, 'show'])->name('cars.show');
 
-// Public API routes for cars (no authentication required)
+// ── Public API (no auth required) ────────────────────────────────────────────
 Route::prefix('api')->group(function () {
     Route::get('/cars', [\App\Http\Controllers\CarController::class, 'index'])->name('api.cars.index');
     Route::get('/cars/{car}', [\App\Http\Controllers\CarController::class, 'show'])->name('api.cars.show');
 });
 
-// Car management routes (requires moderator or super admin)
+// ── Smart dashboard redirect (post-login) ────────────────────────────────────
+// Redirects the user to their role-specific dashboard after logging in.
+Route::middleware(['auth', 'verified'])->get('/dashboard', function () {
+    $user = auth()->user();
+
+    if ($user->isAdmin() || $user->isModerator()) {
+        return redirect()->route('admin.dashboard');
+    }
+
+    if ($user->isDealer()) {
+        return redirect()->route('dealer.dashboard');
+    }
+
+    // buyer or any other role
+    return redirect()->route('buyer.dashboard');
+})->name('dashboard');
+
+// ── Super Admin routes ────────────────────────────────────────────────────────
+Route::middleware(['auth', 'admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        // Dashboard
+        Route::get('/dashboard', [\App\Http\Controllers\AdminDashboardController::class, 'index'])
+            ->name('dashboard');
+
+        // Car management (all cars)
+        Route::get('/cars', [\App\Http\Controllers\CarController::class, 'manage'])->name('cars.index');
+        Route::get('/cars/create', [\App\Http\Controllers\CarController::class, 'create'])->name('cars.create');
+        Route::get('/cars/{car}/edit', [\App\Http\Controllers\CarController::class, 'edit'])->name('cars.edit');
+
+        // Appearance / Site settings
+        Route::get('/appearance', [\App\Http\Controllers\AppearanceController::class, 'index'])->name('appearance.index');
+        Route::post('/appearance', [\App\Http\Controllers\AppearanceController::class, 'update'])->name('appearance.update');
+    });
+
+// ── Dealer routes ─────────────────────────────────────────────────────────────
+// Dealers manage their OWN car listings only.
+Route::middleware(['auth', 'verified', 'dealer'])
+    ->prefix('dealer')
+    ->name('dealer.')
+    ->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\DealerDashboardController::class, 'index'])
+            ->name('dashboard');
+
+        // Dealer car management (scoped to own cars inside the controller)
+        Route::get('/cars', [\App\Http\Controllers\CarController::class, 'manage'])->name('cars.index');
+        Route::get('/cars/create', [\App\Http\Controllers\CarController::class, 'create'])->name('cars.create');
+        Route::get('/cars/{car}/edit', [\App\Http\Controllers\CarController::class, 'edit'])->name('cars.edit');
+    });
+
+// ── Buyer routes ──────────────────────────────────────────────────────────────
+// Buyers browse cars and manage their own profile.
+Route::middleware(['auth', 'verified'])
+    ->prefix('buyer')
+    ->name('buyer.')
+    ->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\BuyerDashboardController::class, 'index'])
+            ->name('dashboard');
+    });
+
+// ── Car write operations (dealer OR admin) ────────────────────────────────────
 Route::middleware(['auth', 'verified', 'moderator'])->group(function () {
     Route::post('/cars', [\App\Http\Controllers\CarController::class, 'store'])->name('cars.store');
     Route::put('/cars/{car}', [\App\Http\Controllers\CarController::class, 'update'])->name('cars.update');
     Route::delete('/cars/{car}', [\App\Http\Controllers\CarController::class, 'destroy'])->name('cars.destroy');
-    
-    // Image management
+
     Route::post('/cars/{car}/images', [\App\Http\Controllers\CarController::class, 'uploadImages'])->name('cars.images.upload');
     Route::delete('/cars/images/{image}', [\App\Http\Controllers\CarController::class, 'deleteImage'])->name('cars.images.delete');
     Route::put('/cars/images/{image}/primary', [\App\Http\Controllers\CarController::class, 'setPrimaryImage'])->name('cars.images.primary');
 });
 
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('admin/dashboard');
-    })->name('dashboard');
-    
-    // Car management for super admins
-    Route::get('/cars', [\App\Http\Controllers\CarController::class, 'manage'])->name('cars.index');
-    Route::get('/cars/create', [\App\Http\Controllers\CarController::class, 'create'])->name('cars.create');
-    Route::get('/cars/{car}/edit', [\App\Http\Controllers\CarController::class, 'edit'])->name('cars.edit');
+// ── Moderator dashboard (legacy — kept for backwards compat) ──────────────────
+Route::middleware(['auth', 'verified', 'moderator'])
+    ->prefix('moderator')
+    ->name('moderator.')
+    ->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\CarController::class, 'dashboard'])->name('dashboard');
+        Route::get('/cars', [\App\Http\Controllers\CarController::class, 'manage'])->name('cars.index');
+        Route::get('/cars/create', [\App\Http\Controllers\CarController::class, 'create'])->name('cars.create');
+        Route::get('/cars/{car}/edit', [\App\Http\Controllers\CarController::class, 'edit'])->name('cars.edit');
+    });
 
-    // Appearance
-    Route::get('/appearance', [\App\Http\Controllers\AppearanceController::class, 'index'])->name('appearance.index');
-    Route::post('/appearance', [\App\Http\Controllers\AppearanceController::class, 'update'])->name('appearance.update');
-});
-
-// Moderator dashboard (car dealers)
-Route::middleware(['auth', 'verified', 'moderator'])->prefix('moderator')->name('moderator.')->group(function () {
-    Route::get('/dashboard', [\App\Http\Controllers\CarController::class, 'dashboard'])->name('dashboard');
-    Route::get('/cars', [\App\Http\Controllers\CarController::class, 'manage'])->name('cars.index');
-    Route::get('/cars/create', [\App\Http\Controllers\CarController::class, 'create'])->name('cars.create');
-    Route::get('/cars/{car}/edit', [\App\Http\Controllers\CarController::class, 'edit'])->name('cars.edit');
-});
-
-// Debug route - remove in production
+// ── Debug (remove in production) ─────────────────────────────────────────────
 Route::middleware(['auth'])->get('/debug-user', function () {
     $user = auth()->user();
     return response()->json([
-        'authenticated' => true,
-        'user' => [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'role' => $user->role,
-        ],
+        'user'        => $user->only(['id', 'name', 'email', 'role']),
         'permissions' => [
-            'is_admin' => $user->isAdmin(),
-            'is_moderator' => $user->isModerator(),
-            'can_manage_cars' => $user->canManageCars(),
+            'is_admin'       => $user->isAdmin(),
+            'is_dealer'      => $user->isDealer(),
+            'is_buyer'       => $user->isBuyer(),
+            'can_manage_cars'=> $user->canManageCars(),
         ],
-        'access' => [
-            'admin_dashboard' => route('admin.dashboard'),
-            'admin_cars' => route('admin.cars.index'),
-            'moderator_dashboard' => route('moderator.dashboard'),
-            'moderator_cars' => route('moderator.cars.index'),
-        ]
     ]);
 });
 
