@@ -92,17 +92,11 @@ export default function CarsDashboard({ stats, recentCars }: DashboardProps) {
                                 recentCars.map((car) => (
                                     <div key={car.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors">
                                         <div className="w-20 h-20 bg-neutral-200 dark:bg-neutral-800 rounded-md overflow-hidden flex-shrink-0">
-                                            {car.primary_image ? (
-                                                <img
-                                                    src={`/storage/${car.primary_image.image_path}`}
-                                                    alt={`${car.make} ${car.model}`}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center">
-                                                    <Car className="h-8 w-8 text-neutral-400" />
-                                                </div>
-                                            )}
+                                            <img 
+                                                src={car.primary_image ? `/storage/${car.primary_image.image_path}` : "/images/default-car.png"} 
+                                                className={`w-full h-full object-cover ${!car.primary_image && 'opacity-50 grayscale'}`} 
+                                                alt={`${car.make} ${car.model}`} 
+                                            />
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <h3 className="font-semibold truncate">{car.make} {car.model} {car.year}</h3>

@@ -66,7 +66,7 @@ interface Car {
 export default function Show({ car }: { car: Car }) {
     // Find primary image or use the first one, or fallback
     const primaryImageObj = car.images.find(img => img.is_primary) || car.images[0];
-    const initialMainImage = primaryImageObj ? `/storage/${primaryImageObj.image_path}` : '/images/placeholder-car.png';
+    const initialMainImage = primaryImageObj ? `/storage/${primaryImageObj.image_path}` : '/images/default-car.png';
 
     const [mainImage, setMainImage] = useState(initialMainImage);
 

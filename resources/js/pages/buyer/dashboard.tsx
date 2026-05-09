@@ -113,10 +113,11 @@ export default function BuyerDashboard({ stats, featuredCars, user }: BuyerDashb
                                     className="group block rounded-lg border overflow-hidden hover:shadow-md transition-shadow"
                                 >
                                     <div className="w-full h-36 bg-neutral-200 dark:bg-neutral-800 overflow-hidden flex items-center justify-center">
-                                        {car.primary_image
-                                            ? <img src={`/storage/${car.primary_image.image_path}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform" alt="" />
-                                            : <Car className="h-10 w-10 text-neutral-400" />
-                                        }
+                                        <img 
+                                            src={car.primary_image ? `/storage/${car.primary_image.image_path}` : "/images/default-car.png"} 
+                                            className={`w-full h-full object-cover group-hover:scale-105 transition-transform ${!car.primary_image && 'opacity-50 grayscale'}`} 
+                                            alt={`${car.make} ${car.model}`} 
+                                        />
                                     </div>
                                     <div className="p-3">
                                         <h3 className="font-semibold text-sm truncate">{car.make} {car.model} {car.year}</h3>

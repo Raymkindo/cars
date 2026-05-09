@@ -119,10 +119,11 @@ export default function AdminDashboard({ stats, recentCars, dealers }: AdminDash
                                     recentCars.map((car) => (
                                         <div key={car.id} className="flex items-center gap-3 p-3 rounded-lg border hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors">
                                             <div className="w-14 h-14 bg-neutral-200 dark:bg-neutral-800 rounded-md overflow-hidden flex-shrink-0 flex items-center justify-center">
-                                                {car.primary_image
-                                                    ? <img src={`/storage/${car.primary_image.image_path}`} className="w-full h-full object-cover" alt="" />
-                                                    : <Car className="h-6 w-6 text-neutral-400" />
-                                                }
+                                                <img 
+                                                    src={car.primary_image ? `/storage/${car.primary_image.image_path}` : "/images/default-car.png"} 
+                                                    className={`w-full h-full object-cover ${!car.primary_image && 'opacity-50 grayscale'}`} 
+                                                    alt={`${car.make} ${car.model}`} 
+                                                />
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="font-semibold text-sm truncate">{car.make} {car.model} {car.year}</p>

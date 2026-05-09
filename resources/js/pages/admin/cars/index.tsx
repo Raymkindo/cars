@@ -153,17 +153,11 @@ export default function CarsIndex({ cars, filters }: CarListingProps) {
                                         <TableRow key={car.id}>
                                             <TableCell>
                                                 <div className="h-12 w-16 bg-neutral-100 dark:bg-neutral-800 rounded overflow-hidden">
-                                                    {car.primary_image ? (
-                                                        <img
-                                                            src={`/storage/${car.primary_image.image_path}`}
-                                                            alt=""
-                                                            className="h-full w-full object-cover"
-                                                        />
-                                                    ) : (
-                                                        <div className="h-full w-full flex items-center justify-center">
-                                                            <Car className="h-6 w-6 text-neutral-400" />
-                                                        </div>
-                                                    )}
+                                                    <img 
+                                                        src={car.primary_image ? `/storage/${car.primary_image.image_path}` : "/images/default-car.png"} 
+                                                        className={`w-full h-full object-cover ${!car.primary_image && 'opacity-50 grayscale'}`} 
+                                                        alt={`${car.make} ${car.model}`} 
+                                                    />
                                                 </div>
                                             </TableCell>
                                             <TableCell className="font-medium">{car.ref_number}</TableCell>

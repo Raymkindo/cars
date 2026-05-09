@@ -24,7 +24,7 @@ class WelcomeController extends Controller
                     'price' => $car->formatted_price,
                     'details' => "{$car->engine_size}L {$car->fuel_type} • {$car->transmission} • " . number_format($car->mileage) . " km",
                     'ref' => $car->ref_number,
-                    'image' => $car->primaryImage ? '/storage/' . $car->primaryImage->image_path : '/images/placeholder-car.png',
+                    'image' => $car->primaryImage ? '/storage/' . $car->primaryImage->image_path : '/images/default-car.png',
                     'badge' => $car->created_at->diffInDays(now()) < 7 ? 'New Arrival' : null,
                 ];
             });
