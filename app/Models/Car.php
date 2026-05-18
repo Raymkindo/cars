@@ -17,6 +17,7 @@ class Car extends Model
         'year',
         'price',
         'mileage',
+        'engine_size',
         'vin',
         'body_type',
         'fuel_type',
@@ -26,6 +27,13 @@ class Car extends Model
         'condition',
         'description',
         'status',
+        'sale_price',
+        'deal_badge',
+        'deal_ends_at',
+    ];
+
+    protected $casts = [
+        'deal_ends_at' => 'datetime',
     ];
 
     /**
@@ -60,6 +68,8 @@ class Car extends Model
 
     /**
      * Get the primary image for the car.
+     * Returns null if no image is marked as primary — always check before accessing.
+     * The handleImageUploads() helper ensures the first uploaded image is always primary.
      */
     public function primaryImage()
     {
@@ -76,12 +86,13 @@ class Car extends Model
 
     /**
      * Scope a query to only include featured cars.
+     * Pass $limit to control how many results are returned (default: 8).
      */
-    public function scopeFeatured($query)
+    public function scopeFeatured($query, int $limit = 8)
     {
         return $query->where('status', 'available')
                      ->orderBy('created_at', 'desc')
-                     ->limit(8);
+                     ->limit($limit);
     }
 
     /**
@@ -90,5 +101,26 @@ class Car extends Model
     public function getFormattedPriceAttribute()
     {
         return '$' . number_format($this->price, 0);
+    }
+
+    /**
+     * Scope a query to only include hot deals.
+     */
+    public function scopeHotDeals($query, int $limit = 4)
+    {
+        return $query->where('status', 'available')
+                     ->whereNotNull('sale_price')
+                     ->whereNotNull('deal_ends_at')
+                     ->where('deal_ends_at', '>', now())
+                     ->orderBy('deal_ends_at', 'asc')
+                     ->limit($limit);
+    }
+
+    /**
+     * Get formatted sale price.
+     */
+    public function getFormattedSalePriceAttribute()
+    {
+        return $this->sale_price ? '$' . number_format($this->sale_price, 0) : null;
     }
 }

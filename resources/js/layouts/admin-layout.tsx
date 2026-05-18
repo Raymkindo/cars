@@ -82,14 +82,16 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                             active={currentPath.startsWith('/admin/cars')}
                         />
                         <NavLink
-                            href="#"
+                            href={route('admin.users.index')}
                             icon={<Users className="h-5 w-5" />}
                             label="Users"
+                            active={currentPath.startsWith('/admin/users')}
                         />
                         <NavLink
-                            href="#"
+                            href={route('admin.analytics.index')}
                             icon={<BarChart3 className="h-5 w-5" />}
                             label="Analytics"
+                            active={currentPath.startsWith('/admin/analytics')}
                         />
                         <NavLink
                             href={route('admin.appearance.index')}
@@ -98,9 +100,10 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                             active={currentPath.startsWith('/admin/appearance')}
                         />
                         <NavLink
-                            href="#"
+                            href={route('admin.settings.index')}
                             icon={<Settings className="h-5 w-5" />}
                             label="Settings"
+                            active={currentPath.startsWith('/admin/settings')}
                         />
                     </nav>
                 </div>

@@ -28,22 +28,23 @@ class UpdateCarRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'make' => 'sometimes|required|string|max:255',
-            'model' => 'sometimes|required|string|max:255',
-            'year' => 'sometimes|required|integer|min:1900|max:' . (date('Y') + 1),
-            'price' => 'sometimes|required|numeric|min:0',
-            'mileage' => 'sometimes|required|integer|min:0',
-            'vin' => 'nullable|string|max:255',
-            'body_type' => 'sometimes|required|string|max:255',
-            'fuel_type' => 'sometimes|required|string|max:255',
-            'transmission' => 'sometimes|required|string|max:255',
-            'drive_type' => 'sometimes|required|string|max:255',
-            'color' => 'sometimes|required|string|max:255',
-            'condition' => 'sometimes|required|string|max:255',
+            'make'        => 'sometimes|required|string|max:255',
+            'model'       => 'sometimes|required|string|max:255',
+            'year'        => 'sometimes|required|integer|min:1900|max:' . (date('Y') + 1),
+            'price'       => 'sometimes|required|numeric|min:0',
+            'mileage'     => 'sometimes|required|integer|min:0',
+            'engine_size' => 'nullable|numeric|min:0|max:9.9',
+            'vin'         => 'nullable|string|max:17|unique:cars,vin,' . ($this->route('car')?->id ?? 'NULL'),
+            'body_type'   => 'sometimes|required|string|max:255',
+            'fuel_type'   => 'sometimes|required|string|max:255',
+            'transmission'=> 'sometimes|required|string|max:255',
+            'drive_type'  => 'sometimes|required|string|max:255',
+            'color'       => 'sometimes|required|string|max:255',
+            'condition'   => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
-            'status' => 'nullable|string|in:available,sold,reserved',
-            'images' => 'nullable|array|max:10',
-            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:5120', // 5MB max
+            'status'      => 'nullable|string|in:available,sold,reserved',
+            'images'      => 'nullable|array|max:10',
+            'images.*'    => 'image|mimes:jpeg,png,jpg,webp|max:5120', // 5MB max
         ];
     }
 }

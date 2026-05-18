@@ -5,8 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Palette, Save, Upload } from 'lucide-react';
-import { useState } from 'react';
+import { Palette, Save, Upload, Sparkles } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 interface AppearanceIndexProps {
     settings: {
@@ -15,19 +15,41 @@ interface AppearanceIndexProps {
         hero_image?: string;
         hero_cta_text?: string;
     };
+    colors: {
+        color_primary?: string;
+        color_secondary?: string;
+        color_accent?: string;
+    };
 }
 
-export default function AppearanceIndex({ settings }: AppearanceIndexProps) {
+export default function AppearanceIndex({ settings, colors }: AppearanceIndexProps) {
     const { data, setData, post, processing, errors, recentlySuccessful } = useForm({
         hero_title: settings.hero_title || '',
         hero_subtitle: settings.hero_subtitle || '',
         hero_cta_text: settings.hero_cta_text || '',
         hero_image: null as File | null,
+        
+        color_primary: colors?.color_primary || '#2563eb', // Blue 600
+        color_secondary: colors?.color_secondary || '#4f46e5', // Indigo 600
+        color_accent: colors?.color_accent || '#f59e0b', // Amber 500
     });
 
     const [previewImage, setPreviewImage] = useState<string | null>(
         settings.hero_image || null
     );
+
+    // Auto-generated gradients state based on the 3 base colors
+    const [generatedGradients, setGeneratedGradients] = useState<Record<string, string>>({});
+
+    useEffect(() => {
+        // Automatically generate appealing gradients from the 3 main colors chosen
+        setGeneratedGradients({
+            heroGradient: `linear-gradient(135deg, ${data.color_primary}, ${data.color_secondary})`,
+            cardGradient: `linear-gradient(to bottom right, ${data.color_secondary}20, ${data.color_accent}20)`,
+            buttonGradient: `linear-gradient(90deg, ${data.color_primary}, ${data.color_accent})`,
+            accentGlow: `${data.color_accent}40`,
+        });
+    }, [data.color_primary, data.color_secondary, data.color_accent]);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -60,10 +82,116 @@ export default function AppearanceIndex({ settings }: AppearanceIndexProps) {
                 </div>
 
                 <form onSubmit={submit} className="space-y-8">
+                    
+                    {/* Brand Colors Section (New Feature) */}
+                    <Card className="border-2 border-primary/20">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Sparkles className="h-5 w-5 text-amber-500" />
+                                Smart Brand Colors
+                            </CardTitle>
+                            <CardDescription>
+                                Pick your 3 main brand colors. The system will automatically generate all necessary gradients and accent effects for the frontend.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-8">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {/* Primary Color Picker */}
+                                <div className="space-y-3">
+                                    <Label htmlFor="color_primary">Primary Color</Label>
+                                    <div className="flex gap-3">
+                                        <div className="relative w-12 h-12 rounded-lg shadow-sm overflow-hidden border">
+                                            <input
+                                                type="color"
+                                                id="color_primary"
+                                                className="absolute -top-2 -left-2 w-16 h-16 cursor-pointer"
+                                                value={data.color_primary}
+                                                onChange={(e) => setData('color_primary', e.target.value)}
+                                            />
+                                        </div>
+                                        <Input 
+                                            value={data.color_primary} 
+                                            onChange={(e) => setData('color_primary', e.target.value)} 
+                                            className="font-mono uppercase flex-1"
+                                        />
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">Used for main buttons and primary highlights.</p>
+                                    {errors.color_primary && <p className="text-sm text-red-500">{errors.color_primary}</p>}
+                                </div>
+
+                                {/* Secondary Color Picker */}
+                                <div className="space-y-3">
+                                    <Label htmlFor="color_secondary">Secondary Color</Label>
+                                    <div className="flex gap-3">
+                                        <div className="relative w-12 h-12 rounded-lg shadow-sm overflow-hidden border">
+                                            <input
+                                                type="color"
+                                                id="color_secondary"
+                                                className="absolute -top-2 -left-2 w-16 h-16 cursor-pointer"
+                                                value={data.color_secondary}
+                                                onChange={(e) => setData('color_secondary', e.target.value)}
+                                            />
+                                        </div>
+                                        <Input 
+                                            value={data.color_secondary} 
+                                            onChange={(e) => setData('color_secondary', e.target.value)} 
+                                            className="font-mono uppercase flex-1"
+                                        />
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">Used alongside primary to create depth and main gradients.</p>
+                                </div>
+
+                                {/* Accent Color Picker */}
+                                <div className="space-y-3">
+                                    <Label htmlFor="color_accent">Accent Color</Label>
+                                    <div className="flex gap-3">
+                                        <div className="relative w-12 h-12 rounded-lg shadow-sm overflow-hidden border">
+                                            <input
+                                                type="color"
+                                                id="color_accent"
+                                                className="absolute -top-2 -left-2 w-16 h-16 cursor-pointer"
+                                                value={data.color_accent}
+                                                onChange={(e) => setData('color_accent', e.target.value)}
+                                            />
+                                        </div>
+                                        <Input 
+                                            value={data.color_accent} 
+                                            onChange={(e) => setData('color_accent', e.target.value)} 
+                                            className="font-mono uppercase flex-1"
+                                        />
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">Used for badges, badges, and "pop" elements.</p>
+                                </div>
+                            </div>
+
+                            {/* Live Gradient Previews */}
+                            <div className="mt-8 pt-6 border-t border-dashed">
+                                <Label className="text-md mb-4 block">Auto-Generated Gradients Preview</Label>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <div className="rounded-xl p-6 text-white font-semibold flex items-center justify-center shadow-lg"
+                                         style={{ background: generatedGradients.heroGradient }}>
+                                        Hero Gradient
+                                    </div>
+                                    <div className="rounded-xl p-6 font-semibold flex items-center justify-center border shadow-sm"
+                                         style={{ background: generatedGradients.cardGradient, color: data.color_primary }}>
+                                        Card Highlight
+                                    </div>
+                                    <div className="rounded-xl p-6 text-white font-semibold flex items-center justify-center shadow-lg transition-transform hover:scale-105"
+                                         style={{ 
+                                             background: generatedGradients.buttonGradient,
+                                             boxShadow: `0 10px 25px -5px ${generatedGradients.accentGlow}` 
+                                         }}>
+                                        Call to Action Button
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
                     {/* Hero Section Settings */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>Hero Section</CardTitle>
+                            <CardTitle>Hero Section Content</CardTitle>
                             <CardDescription>
                                 Customize the main landing area of your home page.
                             </CardDescription>
@@ -153,24 +281,15 @@ export default function AppearanceIndex({ settings }: AppearanceIndexProps) {
                         </CardContent>
                     </Card>
 
-                    <div className="flex justify-end">
+                    <div className="flex items-center justify-end gap-4 pb-12">
+                        {recentlySuccessful && (
+                            <span className="text-sm text-green-600 font-medium">Appearance updated successfully!</span>
+                        )}
                         <Button type="submit" size="lg" disabled={processing}>
-                            {processing ? (
-                                'Saving...'
-                            ) : (
-                                <>
-                                    <Save className="mr-2 h-4 w-4" />
-                                    Save Changes
-                                </>
-                            )}
+                            {processing ? 'Saving...' : <><Save className="mr-2 h-4 w-4" /> Save Changes</>}
                         </Button>
                     </div>
 
-                    {recentlySuccessful && (
-                        <div className="text-center p-4 bg-green-50 text-green-600 rounded-lg border border-green-200">
-                            Settings saved successfully!
-                        </div>
-                    )}
                 </form>
             </div>
         </AdminLayout>

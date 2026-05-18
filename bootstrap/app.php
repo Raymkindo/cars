@@ -23,9 +23,12 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
-            'admin'     => \App\Http\Middleware\AdminMiddleware::class,
-            'moderator' => \App\Http\Middleware\ModeratorMiddleware::class,
-            'dealer'    => \App\Http\Middleware\DealerMiddleware::class,
+            'admin'            => \App\Http\Middleware\AdminMiddleware::class,
+            // 'moderator' kept as an alias for backward compat with existing route groups.
+            // Both aliases point to CanManageCarsMiddleware (allows admin+moderator+dealer).
+            'moderator'        => \App\Http\Middleware\CanManageCarsMiddleware::class,
+            'can_manage_cars'  => \App\Http\Middleware\CanManageCarsMiddleware::class,
+            'dealer'           => \App\Http\Middleware\DealerMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

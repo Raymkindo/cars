@@ -3,7 +3,7 @@ import { Head, Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Car, CheckCircle, Globe, Package, Shield, Ship, Truck, Tag, Zap, Clock, Percent } from 'lucide-react';
 
-interface Car {
+interface CarListing {
     id: number;
     name: string;
     price: string;
@@ -13,18 +13,40 @@ interface Car {
     badge?: string;
 }
 
+interface Brand {
+    name: string;
+    color: string;
+    count: number;
+}
+
+interface HotDeal {
+    id: number;
+    name: string;
+    originalPrice: string;
+    salePrice: string;
+    discount: string;
+    details: string;
+    ref: string;
+    image: string;
+    badge: string;
+    timeLeft: string;
+    savings: string;
+}
+
 interface WelcomeProps {
     canRegister: boolean;
-    featuredCars: Car[];
+    featuredCars: CarListing[];
+    popularBrands: Brand[];
     heroSettings?: {
         hero_title?: string;
         hero_subtitle?: string;
         hero_image?: string;
         hero_cta_text?: string;
     };
+    hotDeals: HotDeal[];
 }
 
-export default function Welcome({ canRegister, featuredCars, heroSettings }: WelcomeProps) {
+export default function Welcome({ canRegister, featuredCars, popularBrands, heroSettings, hotDeals }: WelcomeProps) {
     const defaultSettings = {
         hero_title: 'Find Your Dream Car <br /> <span class="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-500 bg-clip-text text-transparent">From Japan</span>',
         hero_subtitle: 'Premium quality used cars with global shipping. <span class="text-yellow-400 font-semibold">Over 10,000+ vehicles</span> in stock.',
@@ -238,7 +260,7 @@ export default function Welcome({ canRegister, featuredCars, heroSettings }: Wel
                         {/* Featured Vehicles Grid */}
                         <div className="lg:col-span-3">
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                {featuredCars.map((car) => (
+                            {featuredCars.map((car) => (
                                     <div key={car.id} className="group bg-white dark:bg-neutral-900 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-neutral-200 dark:border-neutral-800">
                                         <div className="aspect-[4/3] bg-neutral-200 dark:bg-neutral-800 relative overflow-hidden">
                                             <Link href={route('cars.show', car.id)}>
@@ -302,20 +324,7 @@ export default function Welcome({ canRegister, featuredCars, heroSettings }: Wel
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                        {[
-                            { name: 'Toyota', count: '2,500+', color: 'from-red-500 to-red-600' },
-                            { name: 'Nissan', count: '1,800+', color: 'from-blue-500 to-blue-600' },
-                            { name: 'Honda', count: '1,600+', color: 'from-red-600 to-red-700' },
-                            { name: 'Mazda', count: '1,200+', color: 'from-blue-600 to-indigo-600' },
-                            { name: 'BMW', count: '800+', color: 'from-blue-700 to-blue-800' },
-                            { name: 'Mercedes-Benz', count: '750+', color: 'from-neutral-700 to-neutral-800' },
-                            { name: 'Audi', count: '650+', color: 'from-red-700 to-red-800' },
-                            { name: 'Volkswagen', count: '600+', color: 'from-blue-500 to-cyan-500' },
-                            { name: 'Subaru', count: '550+', color: 'from-blue-600 to-blue-700' },
-                            { name: 'Mitsubishi', count: '500+', color: 'from-red-600 to-orange-600' },
-                            { name: 'Lexus', count: '450+', color: 'from-neutral-800 to-neutral-900' },
-                            { name: 'Porsche', count: '200+', color: 'from-yellow-600 to-orange-600' }
-                        ].map((brand, index) => (
+                        {popularBrands.map((brand, index) => (
                             <Link
                                 key={index}
                                 href={route('cars.index', { make: brand.name })}
@@ -331,8 +340,8 @@ export default function Welcome({ canRegister, featuredCars, heroSettings }: Wel
                                         <h3 className="font-bold text-lg mb-1 text-neutral-900 dark:text-white group-hover:text-white transition-colors">
                                             {brand.name}
                                         </h3>
-                                        <p className="text-sm text-neutral-500 dark:text-neutral-400 group-hover:text-white/90 transition-colors">
-                                            {brand.count} cars
+                                        <p className="text-sm font-semibold text-neutral-500 dark:text-neutral-400 group-hover:text-white/90 transition-colors">
+                                            {brand.count > 0 ? `${brand.count}+ Cars` : 'Coming Soon'}
                                         </p>
                                     </div>
                                 </div>
@@ -376,60 +385,7 @@ export default function Welcome({ canRegister, featuredCars, heroSettings }: Wel
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                        {[
-                            {
-                                id: 1,
-                                name: 'Toyota Vitz 2018',
-                                originalPrice: '$12,500',
-                                salePrice: '$9,800',
-                                discount: '22%',
-                                details: '1.3L Petrol • Automatic • 68,000 km',
-                                ref: 'BF88001',
-                                image: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=800&auto=format&fit=crop',
-                                badge: 'Clearance',
-                                timeLeft: '2 Days Left',
-                                savings: '$2,700'
-                            },
-                            {
-                                id: 2,
-                                name: 'Nissan Note 2019',
-                                originalPrice: '$11,200',
-                                salePrice: '$8,900',
-                                discount: '20%',
-                                details: '1.2L Petrol • CVT • 55,000 km',
-                                ref: 'BF88002',
-                                image: 'https://images.unsplash.com/photo-1503376763036-066120622c74?q=80&w=800&auto=format&fit=crop',
-                                badge: 'Flash Sale',
-                                timeLeft: '5 Days Left',
-                                savings: '$2,300'
-                            },
-                            {
-                                id: 3,
-                                name: 'Honda Fit 2017',
-                                originalPrice: '$10,800',
-                                salePrice: '$7,999',
-                                discount: '26%',
-                                details: '1.5L Petrol • Automatic • 72,000 km',
-                                ref: 'BF88003',
-                                image: 'https://images.unsplash.com/photo-1568844293986-8d0400bd4745?q=80&w=800&auto=format&fit=crop',
-                                badge: 'Must Go',
-                                timeLeft: '1 Day Left',
-                                savings: '$2,801'
-                            },
-                            {
-                                id: 4,
-                                name: 'Mazda Demio 2018',
-                                originalPrice: '$11,500',
-                                salePrice: '$9,200',
-                                discount: '20%',
-                                details: '1.3L Petrol • Automatic • 60,000 km',
-                                ref: 'BF88004',
-                                image: 'https://images.unsplash.com/photo-1570375231770-53b4553320f0?q=80&w=800&auto=format&fit=crop',
-                                badge: 'Hot Deal',
-                                timeLeft: '3 Days Left',
-                                savings: '$2,300'
-                            }
-                        ].map((deal) => (
+                        {hotDeals.map((deal) => (
                             <div key={deal.id} className="group relative">
                                 <div className="bg-white dark:bg-neutral-900 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 border-2 border-red-200 dark:border-red-900 hover:border-red-500 dark:hover:border-red-500 h-full">
                                     {/* Discount Badge */}

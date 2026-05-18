@@ -14,10 +14,9 @@ Route::get('/cars', [\App\Http\Controllers\PublicCarController::class, 'index'])
 Route::get('/cars/{car}', [\App\Http\Controllers\PublicCarController::class, 'show'])->name('cars.show');
 
 // ── Public API (no auth required) ────────────────────────────────────────────
-Route::prefix('api')->group(function () {
-    Route::get('/cars', [\App\Http\Controllers\CarController::class, 'index'])->name('api.cars.index');
-    Route::get('/cars/{car}', [\App\Http\Controllers\CarController::class, 'show'])->name('api.cars.show');
-});
+// NOTE: These JSON API routes have been removed as the public Inertia pages
+// in PublicCarController already serve the same data. Add Laravel Sanctum
+// if a true REST API is needed in the future.
 
 // ── Smart dashboard redirect (post-login) ────────────────────────────────────
 // Redirects the user to their role-specific dashboard after logging in.
@@ -37,7 +36,7 @@ Route::middleware(['auth', 'verified'])->get('/dashboard', function () {
 })->name('dashboard');
 
 // ── Super Admin routes ────────────────────────────────────────────────────────
-Route::middleware(['auth', 'admin'])
+Route::middleware(['auth', 'verified', 'admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -49,6 +48,17 @@ Route::middleware(['auth', 'admin'])
         Route::get('/cars', [\App\Http\Controllers\CarController::class, 'manage'])->name('cars.index');
         Route::get('/cars/create', [\App\Http\Controllers\CarController::class, 'create'])->name('cars.create');
         Route::get('/cars/{car}/edit', [\App\Http\Controllers\CarController::class, 'edit'])->name('cars.edit');
+
+        // Users management
+        Route::get('/users', [\App\Http\Controllers\AdminUserController::class, 'index'])->name('users.index');
+        Route::post('/users/{user}/role', [\App\Http\Controllers\AdminUserController::class, 'updateRole'])->name('users.role');
+
+        // Analytics
+        Route::get('/analytics', [\App\Http\Controllers\AdminAnalyticsController::class, 'index'])->name('analytics.index');
+
+        // General Settings
+        Route::get('/settings', [\App\Http\Controllers\AdminSettingsController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [\App\Http\Controllers\AdminSettingsController::class, 'update'])->name('settings.update');
 
         // Appearance / Site settings
         Route::get('/appearance', [\App\Http\Controllers\AppearanceController::class, 'index'])->name('appearance.index');
@@ -102,18 +112,7 @@ Route::middleware(['auth', 'verified', 'moderator'])
         Route::get('/cars/{car}/edit', [\App\Http\Controllers\CarController::class, 'edit'])->name('cars.edit');
     });
 
-// ── Debug (remove in production) ─────────────────────────────────────────────
-Route::middleware(['auth'])->get('/debug-user', function () {
-    $user = auth()->user();
-    return response()->json([
-        'user'        => $user->only(['id', 'name', 'email', 'role']),
-        'permissions' => [
-            'is_admin'       => $user->isAdmin(),
-            'is_dealer'      => $user->isDealer(),
-            'is_buyer'       => $user->isBuyer(),
-            'can_manage_cars'=> $user->canManageCars(),
-        ],
-    ]);
-});
+// ── Debug route removed (was: /debug-user) ───────────────────────────────────
+// Removed — exposed role/permission data to any authenticated user.
 
 require __DIR__.'/settings.php';
