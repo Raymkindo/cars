@@ -53,7 +53,33 @@ class WelcomeController extends Controller
         // Fetch hero settings
         $heroSettings = \App\Models\SiteSetting::where('group', 'hero')->get()->mapWithKeys(function ($item) {
             return [$item->key => $item->value];
-        });
+        })->toArray();
+
+        // Dynamically pull Featured Showcase Car from the Database if linked
+        $featuredCarId = $heroSettings['hero_featured_car_id'] ?? null;
+        $showcaseCar = null;
+        if ($featuredCarId) {
+            $showcaseCar = Car::with(['primaryImage'])->find($featuredCarId);
+        }
+
+        // If a real database car is selected, dynamically load its specs
+        if ($showcaseCar) {
+            $enginePart = $showcaseCar->engine_size ? "{$showcaseCar->engine_size}L" : ($showcaseCar->fuel_type ?? 'Petrol');
+            $heroSettings['hero_featured_title'] = "{$showcaseCar->make} {$showcaseCar->model}";
+            $heroSettings['hero_featured_subtitle'] = "{$showcaseCar->make} · {$showcaseCar->year} Series";
+            $heroSettings['hero_featured_spec_1_val'] = $enginePart;
+            $heroSettings['hero_featured_spec_1_lbl'] = $showcaseCar->engine_size ? 'Engine' : 'Fuel';
+            $heroSettings['hero_featured_spec_2_val'] = $showcaseCar->transmission ?? 'Automatic';
+            $heroSettings['hero_featured_spec_2_lbl'] = 'Gearbox';
+            $heroSettings['hero_featured_spec_3_val'] = $showcaseCar->drive_type ?? 'AWD';
+            $heroSettings['hero_featured_spec_3_lbl'] = 'Drive';
+            $heroSettings['hero_featured_price'] = 'TZS ' . number_format($showcaseCar->price * 2500, 0); // Estimate TZS based on 2500 USD exchange rate
+            $heroSettings['hero_featured_availability'] = strtoupper($showcaseCar->status) === 'AVAILABLE' ? 'IN STOCK' : strtoupper($showcaseCar->status);
+            
+            if ($showcaseCar->primaryImage) {
+                $heroSettings['hero_image'] = '/storage/' . $showcaseCar->primaryImage->image_path;
+            }
+        }
 
         // Count available cars per featured brand from the real database
         $brandNames = collect(self::FEATURED_BRANDS)->pluck('name')->toArray();

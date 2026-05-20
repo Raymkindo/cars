@@ -77,6 +77,14 @@ class CarSeeder extends Seeder
             ['make' => 'Volkswagen',  'model' => 'Transporter T6',  'year' => 2020, 'price' => 36000,  'mileage' => 48000,  'body_type' => 'Van',        'fuel_type' => 'Diesel',   'transmission' => 'Manual',    'drive_type' => 'FWD', 'color' => 'Deep Black',   'condition' => 'Used',      'description' => 'Versatile T6 panel van with bulkhead and shelving fitted.'],
         ];
 
+        // Hot deal configuration: first 4 cars get a sale price, expiry date, and badge.
+        $hotDealOverrides = [
+            0 => ['sale_price' => 19500, 'deal_ends_at' => now()->addDays(5),  'deal_badge' => 'Flash Sale'],
+            1 => ['sale_price' => 17000, 'deal_ends_at' => now()->addDays(3),  'deal_badge' => 'Hot Deal'],
+            2 => ['sale_price' => 31500, 'deal_ends_at' => now()->addDays(7),  'deal_badge' => 'Limited'],
+            3 => ['sale_price' => 28000, 'deal_ends_at' => now()->addDays(10), 'deal_badge' => 'Special'],
+        ];
+
         foreach ($cars as $index => $car) {
             // Generate a unique reference number like CAR-00001
             $refNumber = 'CAR-' . str_pad($index + 1, 5, '0', STR_PAD_LEFT);
@@ -84,12 +92,19 @@ class CarSeeder extends Seeder
             // Round-robin: distribute cars evenly across all dealer accounts
             $assignedDealerId = $dealerIds[$index % count($dealerIds)];
 
-            Car::create(array_merge($car, [
+            $extra = [
                 'user_id'    => $assignedDealerId,
                 'ref_number' => $refNumber,
                 'vin'        => 'VIN' . strtoupper(substr(md5($refNumber), 0, 14)),
                 'status'     => 'available',
-            ]));
+            ];
+
+            // Merge hot-deal overrides for the first 4 cars
+            if (isset($hotDealOverrides[$index])) {
+                $extra = array_merge($extra, $hotDealOverrides[$index]);
+            }
+
+            Car::create(array_merge($car, $extra));
         }
     }
 }
