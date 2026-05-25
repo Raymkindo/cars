@@ -49,7 +49,7 @@ export default function CarsIndex({ cars, filters }: CarListingProps) {
     const [status, setStatus] = useState(filters.status || 'all');
 
     // Handle both 'admin' and 'super_admin' roles for the prefix
-    const routePrefix = (auth.user.role === 'admin' || auth.user.role === 'super_admin') ? 'admin' : 'moderator';
+    const routePrefix = (auth.user.role === 'super_admin') ? 'admin' : 'moderator';
 
     const handleSearch = () => {
         router.get(route(`${routePrefix}.cars.index`), {

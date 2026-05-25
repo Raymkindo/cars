@@ -22,13 +22,29 @@ export function PublicNavbar() {
     return (
         <header className="w-full border-b bg-white dark:bg-neutral-900 dark:border-neutral-800">
             {/* Top Bar - Utility Links */}
-            <div className="bg-neutral-100 dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-800 text-xs">
-                <div className="container mx-auto px-4 h-9 flex items-center justify-between">
-                    <div className="flex items-center space-x-4 text-neutral-600 dark:text-neutral-400">
-                        <span>Currency: <span className="font-semibold text-black dark:text-white">USD</span></span>
-                        <span>Language: <span className="font-semibold text-black dark:text-white">English</span></span>
+            <div className="bg-neutral-100 dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-800 text-[11px]">
+                <div className="w-full px-4 md:px-6 xl:px-8 h-9 flex items-center justify-between gap-4">
+                    <div className="flex items-center space-x-4 text-neutral-600 dark:text-neutral-400 flex-shrink-0">
+                        <span>Currency: <span className="font-semibold text-neutral-900 dark:text-white">USD</span></span>
+                        <span className="text-neutral-300 dark:text-neutral-800">|</span>
+                        <span>Language: <span className="font-semibold text-neutral-900 dark:text-white">English</span></span>
                     </div>
-                    <div className="flex items-center space-x-4">
+                    
+                    {/* Live Stats Ticker placed in the center of the utility bar */}
+                    <div className="hidden lg:flex items-center space-x-4 text-[10px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mx-auto">
+                        <div className="flex items-center gap-1">
+                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#ED1C24] animate-pulse" />
+                            <span>Total Stock: <span className="text-neutral-800 dark:text-white font-extrabold">500+</span></span>
+                        </div>
+                        <span className="text-neutral-300 dark:text-neutral-800">|</span>
+                        <span>Added Today: <span className="text-[#ED1C24] font-extrabold">18 New Cars</span></span>
+                        <span className="text-neutral-300 dark:text-neutral-800">|</span>
+                        <span className="flex items-center gap-0.5"><span className="text-green-500 font-bold">✓</span> 100% Inspected</span>
+                        <span className="text-neutral-300 dark:text-neutral-800">|</span>
+                        <span className="flex items-center gap-0.5"><span className="text-green-500 font-bold">✓</span> 12yr Experience</span>
+                    </div>
+
+                    <div className="flex items-center space-x-4 flex-shrink-0">
                         {auth.user ? (
                             <Link href={dashboard()} className="hover:text-primary flex items-center gap-1">
                                 <User className="h-3 w-3" />
@@ -50,7 +66,7 @@ export function PublicNavbar() {
             </div>
 
             {/* Main Header - Logo, Search, Actions */}
-            <div className="container mx-auto px-4 py-4">
+            <div className="w-full px-4 md:px-6 xl:px-8 py-4">
                 <div className="flex items-center justify-between gap-4">
                     {/* Logo */}
                     <Link href="/" className="flex-shrink-0">
@@ -114,8 +130,8 @@ export function PublicNavbar() {
             </div>
 
             {/* Navigation Menu */}
-            <div className="bg-primary text-primary-foreground md:bg-neutral-800 md:text-white">
-                <div className="container mx-auto px-4">
+            <div className="bg-secondary text-secondary-foreground">
+                <div className="w-full px-4 md:px-6 xl:px-8">
                     <div className="flex items-center h-12">
                         {/* Mobile Menu Trigger */}
                         <Sheet>
