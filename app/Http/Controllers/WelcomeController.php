@@ -34,7 +34,7 @@ class WelcomeController extends Controller
      */
     public function __invoke()
     {
-        $featuredCars = Car::featured()
+        $featuredCars = Car::featured(16)
             ->with(['primaryImage'])
             ->get()
             ->map(function ($car) {
@@ -98,6 +98,40 @@ class WelcomeController extends Controller
             ];
         })->values();
 
+        // Count available cars per body type from the database
+        $featuredBodyTypes = ['SUV', 'Sedan', 'Hatchback', 'Truck', 'Van', 'Coupe', 'Wagon', 'Minivan', 'Convertible', 'Crossover'];
+        $carCountsByBodyType = Car::where('status', 'available')
+            ->whereIn('body_type', $featuredBodyTypes)
+            ->select('body_type', DB::raw('COUNT(*) as count'))
+            ->groupBy('body_type')
+            ->pluck('count', 'body_type');
+
+        $popularBodyTypes = collect($featuredBodyTypes)->map(function ($bodyType) use ($carCountsByBodyType) {
+            return [
+                'name'  => $bodyType,
+                'count' => $carCountsByBodyType->get($bodyType, 0),
+            ];
+        })->sortByDesc('count')->values()->toArray();
+
+        // Fetch 8 popular choice cars for the bottom grid
+        $popularCars = Car::available()
+            ->with(['primaryImage'])
+            ->orderBy('mileage', 'asc')
+            ->limit(8)
+            ->get()
+            ->map(function ($car) {
+                $enginePart = $car->engine_size ? "{$car->engine_size}L " : '';
+                return [
+                    'id'    => $car->id,
+                    'name'  => "{$car->make} {$car->model} {$car->year}",
+                    'price' => $car->formatted_price,
+                    'details' => "{$enginePart}{$car->fuel_type} • {$car->transmission} • " . number_format($car->mileage) . " km",
+                    'ref'   => $car->ref_number,
+                    'image' => $car->primaryImage ? '/storage/' . $car->primaryImage->image_path : '/images/default-car.png',
+                    'badge' => $car->created_at->diffInDays(now()) < 7 ? 'New' : null,
+                ];
+            });
+
         // Fetch hot deals
         $hotDeals = Car::hotDeals()
             ->with(['primaryImage'])
@@ -134,11 +168,13 @@ class WelcomeController extends Controller
             });
 
         return Inertia::render('Welcome', [
-            'canRegister'   => Features::enabled(Features::registration()),
-            'featuredCars'  => $featuredCars,
-            'heroSettings'  => $heroSettings,
-            'popularBrands' => $popularBrands,
-            'hotDeals'      => $hotDeals,
+            'canRegister'        => Features::enabled(Features::registration()),
+            'featuredCars'       => $featuredCars,
+            'heroSettings'       => $heroSettings,
+            'popularBrands'      => $popularBrands,
+            'popularBodyTypes'   => $popularBodyTypes,
+            'popularCars'        => $popularCars,
+            'hotDeals'           => $hotDeals,
         ]);
     }
 }
