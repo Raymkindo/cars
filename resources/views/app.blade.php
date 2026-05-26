@@ -19,8 +19,21 @@
             })();
         </script>
 
+        {{-- Database-backed brand colors integration --}}
+        <?php
+            $colorPrimary = \App\Models\SiteSetting::where('key', 'color_primary')->value('value') ?? '#1B3462';
+            $colorSecondary = \App\Models\SiteSetting::where('key', 'color_secondary')->value('value') ?? '#ED1C24';
+            $colorAccent = \App\Models\SiteSetting::where('key', 'color_accent')->value('value') ?? '#b01018';
+        ?>
+
         {{-- Inline style to set the HTML background color based on our theme in app.css --}}
         <style>
+            :root {
+                --primary: {{ $colorPrimary }};
+                --secondary: {{ $colorSecondary }};
+                --color-primary: {{ $colorPrimary }};
+                --color-secondary: {{ $colorSecondary }};
+            }
             html {
                 background-color: oklch(1 0 0);
             }
@@ -30,7 +43,7 @@
             }
         </style>
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        <title inertia>{{ config('app.name', 'Kenase Japan') }}</title>
 
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
