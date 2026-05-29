@@ -80,4 +80,27 @@ class PublicCarController extends Controller
              // Format for display if needed, or do it in JS
         ]);
     }
+
+    public function newArrivals(Request $request)
+    {
+        $cars = Car::with(['primaryImage'])
+            ->available()
+            ->orderBy('created_at', 'desc')
+            ->paginate(12)
+            ->through(function ($car) {
+                return [
+                    'id' => $car->id,
+                    'name' => "{$car->make} {$car->model} {$car->year}",
+                    'price' => $car->formatted_price,
+                    'details' => "{$car->engine_size}L {$car->fuel_type} • {$car->transmission} • " . number_format($car->mileage) . " km",
+                    'ref' => $car->ref_number,
+                    'image' => $car->primaryImage ? '/storage/' . $car->primaryImage->image_path : '/images/default-car.png',
+                    'badge' => 'New Arrival',
+                ];
+            });
+
+        return Inertia::render('NewArrivals', [
+            'cars' => $cars,
+        ]);
+    }
 }

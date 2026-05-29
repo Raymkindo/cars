@@ -1,6 +1,7 @@
 import PublicLayout from '@/layouts/public-layout';
 import { Button } from '@/components/ui/button';
 import { Car, Shield, Truck, Users, Award, Globe } from 'lucide-react';
+import { Link } from '@inertiajs/react';
 
 export default function AboutUs() {
     return (
@@ -126,8 +127,10 @@ export default function AboutUs() {
                     <p className="text-lg mb-8 text-white/90">
                         Browse our extensive inventory and let us help you import your perfect vehicle.
                     </p>
-                    <Button size="lg" variant="secondary" className="text-lg px-8">
-                        Browse Our Stock
+                    <Button size="lg" variant="secondary" className="text-lg px-8" asChild>
+                        <Link href={route('cars.index')}>
+                            Browse Our Stock
+                        </Link>
                     </Button>
                 </div>
             </div>

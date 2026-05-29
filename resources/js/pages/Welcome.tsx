@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import PublicLayout from '@/layouts/public-layout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Car, CheckCircle, Globe, Package, Shield, Ship, Truck, Tag, Zap, Clock, Percent, Search, Sparkles, DollarSign, ShieldCheck, Lock, Send, Award } from 'lucide-react';
 
@@ -39,6 +39,87 @@ interface BodyType {
     count: number;
 }
 
+interface OptionObject {
+    value: string;
+    label: string;
+}
+
+interface CustomSelectProps {
+    name: string;
+    placeholder: string;
+    options: (string | OptionObject)[];
+    value: string;
+    onChange: (val: string) => void;
+    disabled?: boolean;
+}
+
+function CustomSelect({ name, placeholder, options, value, onChange, disabled }: CustomSelectProps) {
+    const [open, setOpen] = useState(false);
+
+    return (
+        <div className="relative w-full text-left">
+            <button
+                type="button"
+                disabled={disabled}
+                onClick={() => setOpen(!open)}
+                className="flex h-9 w-full items-center justify-between rounded bg-white dark:bg-neutral-900 px-2.5 py-1 text-xs border border-neutral-200 dark:border-neutral-700 hover:border-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50 cursor-pointer text-left font-medium text-neutral-800 dark:text-neutral-200"
+            >
+                <span className="truncate">
+                    {(() => {
+                        if (!value) return placeholder;
+                        const match = options.find(o => (typeof o === 'string' ? o : o.value) === value);
+                        return match ? (typeof match === 'string' ? match : match.label) : placeholder;
+                    })()}
+                </span>
+                <span className="text-neutral-400 text-[8px] flex-shrink-0 ml-1">▼</span>
+            </button>
+
+            {/* Hidden Input to work with FormData */}
+            <input type="hidden" name={name} value={value} />
+
+            {open && (
+                <>
+                    {/* Backdrop to close */}
+                    <div className="fixed inset-0 z-40 cursor-default" onClick={() => setOpen(false)} />
+                    
+                    {/* Scrollable Options List */}
+                    <ul className="absolute z-50 w-full mt-1 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg shadow-xl max-h-[160px] overflow-y-auto py-1 animate-in fade-in slide-in-from-top-1 duration-150 scrollbar-thin">
+                        <li
+                            onClick={() => {
+                                onChange('');
+                                setOpen(false);
+                            }}
+                            className="px-3 py-2 text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer text-neutral-400 font-bold"
+                        >
+                            {placeholder}
+                        </li>
+                        {options.map((opt, idx) => {
+                            const val = typeof opt === 'string' ? opt : opt.value;
+                            const lbl = typeof opt === 'string' ? opt : opt.label;
+                            return (
+                                <li
+                                    key={idx}
+                                    onClick={() => {
+                                        onChange(val);
+                                        setOpen(false);
+                                    }}
+                                    className={`px-3 py-2 text-xs hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer font-bold ${
+                                        value === val 
+                                            ? 'text-[#ED1C24] bg-neutral-50 dark:bg-neutral-800/50' 
+                                            : 'text-neutral-700 dark:text-neutral-300'
+                                    }`}
+                                >
+                                    {lbl}
+                                </li>
+                            );
+                        })}
+                    </ul>
+                </>
+            )}
+        </div>
+    );
+}
+
 interface WelcomeProps {
     canRegister: boolean;
     featuredCars: CarListing[];
@@ -47,10 +128,36 @@ interface WelcomeProps {
     popularCars: CarListing[];
     heroSettings?: Record<string, string>;
     hotDeals: HotDeal[];
+    availableMakes?: string[];
+    availableModels?: { make: string; model: string }[];
 }
 
-export default function Welcome({ canRegister, featuredCars, popularBrands, popularBodyTypes, popularCars, heroSettings, hotDeals }: WelcomeProps) {
+export default function Welcome({
+    canRegister,
+    featuredCars,
+    popularBrands,
+    popularBodyTypes,
+    popularCars,
+    heroSettings,
+    hotDeals,
+    availableMakes = [],
+    availableModels = []
+}: WelcomeProps) {
     const [activeSearchTab, setActiveSearchTab] = useState<'quick' | 'budget' | 'deals'>('quick');
+
+    // Quick Finder filter states
+    const [selectedMake, setSelectedMake] = useState('');
+    const [selectedModel, setSelectedModel] = useState('');
+    const [selectedYearFrom, setSelectedYearFrom] = useState('');
+    const [selectedBodyType, setSelectedBodyType] = useState('');
+    const [selectedPriceMax, setSelectedPriceMax] = useState('');
+
+    // Dynamic models list filtered by make
+    const filteredModels = availableModels
+        .filter(m => !selectedMake || m.make.toLowerCase() === selectedMake.toLowerCase())
+        .map(m => m.model);
+    const uniqueFilteredModels = Array.from(new Set(filteredModels));
+
     const top10Brands = [...popularBrands]
         .sort((a, b) => b.count - a.count)
         .slice(0, 9);
@@ -157,55 +264,61 @@ export default function Welcome({ canRegister, featuredCars, popularBrands, popu
                                             onSubmit={(e) => {
                                                 e.preventDefault();
                                                 const formData = new FormData(e.currentTarget);
-                                                const params = new URLSearchParams();
+                                                const params: Record<string, string> = {};
                                                 formData.forEach((value, key) => {
                                                     if (value && value !== 'Select Make' && value !== 'Select Model' && value !== 'Year From' && value !== 'Body Type' && value !== 'Price Range') {
-                                                        params.append(key, value as string);
+                                                        params[key] = value as string;
                                                     }
                                                 });
-                                                window.location.href = route('cars.index', params.toString());
+                                                router.get(route('cars.index'), params);
                                             }}
                                             className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs"
                                         >
-                                            <select name="make" className="flex h-9 w-full items-center justify-between rounded bg-background px-2.5 py-1 text-xs border border-neutral-200 dark:border-neutral-700 hover:border-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent">
-                                                <option>Select Make</option>
-                                                <option value="Toyota">Toyota</option>
-                                                <option value="Nissan">Nissan</option>
-                                                <option value="Honda">Honda</option>
-                                                <option value="Mazda">Mazda</option>
-                                                <option value="BMW">BMW</option>
-                                                <option value="Mercedes-Benz">Mercedes-Benz</option>
-                                            </select>
-                                            <select name="model" className="flex h-9 w-full items-center justify-between rounded bg-background px-2.5 py-1 text-xs border border-neutral-200 dark:border-neutral-700 hover:border-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent">
-                                                <option>Select Model</option>
-                                                <option value="Harrier">Harrier</option>
-                                                <option value="X-Trail">X-Trail</option>
-                                                <option value="CR-V">CR-V</option>
-                                                <option value="CX-5">CX-5</option>
-                                            </select>
-                                            <select name="year_from" className="flex h-9 w-full items-center justify-between rounded bg-background px-2.5 py-1 text-xs border border-neutral-200 dark:border-neutral-700 hover:border-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent">
-                                                <option>Year From</option>
-                                                <option value="2024">2024</option>
-                                                <option value="2023">2023</option>
-                                                <option value="2022">2022</option>
-                                                <option value="2021">2021</option>
-                                                <option value="2020">2020</option>
-                                            </select>
-                                            <select name="body_type" className="flex h-9 w-full items-center justify-between rounded bg-background px-2.5 py-1 text-xs border border-neutral-200 dark:border-neutral-700 hover:border-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent">
-                                                <option>Body Type</option>
-                                                <option value="SUV">SUV</option>
-                                                <option value="Sedan">Sedan</option>
-                                                <option value="Truck">Truck</option>
-                                                <option value="Hatchback">Hatchback</option>
-                                                <option value="Van">Van</option>
-                                            </select>
-                                            <select name="price_max" className="flex h-9 w-full items-center justify-between rounded bg-background px-2.5 py-1 text-xs border border-neutral-200 dark:border-neutral-700 hover:border-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent">
-                                                <option>Price Range</option>
-                                                <option value="10000">Under $10,000</option>
-                                                <option value="20000">Under $20,000</option>
-                                                <option value="30000">Under $30,000</option>
-                                                <option value="50000">Under $50,000</option>
-                                            </select>
+                                            <CustomSelect
+                                                name="make"
+                                                placeholder="Select Make"
+                                                options={availableMakes}
+                                                value={selectedMake}
+                                                onChange={(val) => {
+                                                    setSelectedMake(val);
+                                                    setSelectedModel('');
+                                                }}
+                                            />
+                                            <CustomSelect
+                                                name="model"
+                                                placeholder={selectedMake ? "Select Model" : "Select Model"}
+                                                options={uniqueFilteredModels}
+                                                value={selectedModel}
+                                                onChange={setSelectedModel}
+                                                disabled={uniqueFilteredModels.length === 0}
+                                            />
+                                            <CustomSelect
+                                                name="year_from"
+                                                placeholder="Year From"
+                                                options={['2025', '2024', '2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016', '2015']}
+                                                value={selectedYearFrom}
+                                                onChange={setSelectedYearFrom}
+                                            />
+                                            <CustomSelect
+                                                name="body_type"
+                                                placeholder="Body Type"
+                                                options={['SUV', 'Sedan', 'Hatchback', 'Truck', 'Van', 'Coupe', 'Wagon', 'Minivan']}
+                                                value={selectedBodyType}
+                                                onChange={setSelectedBodyType}
+                                            />
+                                            <CustomSelect
+                                                name="price_max"
+                                                placeholder="Price Range"
+                                                options={[
+                                                    { value: '5000', label: 'Under $5,000' },
+                                                    { value: '10000', label: 'Under $10,000' },
+                                                    { value: '20000', label: 'Under $20,000' },
+                                                    { value: '30000', label: 'Under $30,000' },
+                                                    { value: '50000', label: 'Under $50,000' }
+                                                ]}
+                                                value={selectedPriceMax}
+                                                onChange={setSelectedPriceMax}
+                                            />
                                             <Button type="submit" className="w-full h-9 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer rounded animate-pulse" style={{ background: 'linear-gradient(135deg, #1B3462, #ED1C24)' }}>
                                                 <Search className="h-3.5 w-3.5" />
                                                 Search

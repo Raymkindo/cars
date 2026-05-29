@@ -1,5 +1,5 @@
 import { PublicNavbar } from '@/components/public-navbar';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { PropsWithChildren } from 'react';
 
 interface PublicLayoutProps extends PropsWithChildren {
@@ -29,10 +29,10 @@ export default function PublicLayout({ children, title }: PublicLayoutProps) {
                         <div>
                             <h3 className="font-bold text-lg mb-4">Quick Links</h3>
                             <ul className="space-y-2 text-sm text-neutral-400">
-                                <li><a href="#" className="hover:text-white">Stock List</a></li>
-                                <li><a href="#" className="hover:text-white">How to Buy</a></li>
-                                <li><a href="#" className="hover:text-white">Shipping Schedule</a></li>
-                                <li><a href="#" className="hover:text-white">FAQ</a></li>
+                                <li><Link href={route('cars.index')} className="hover:text-white cursor-pointer">Stock List</Link></li>
+                                <li><Link href={route('new-arrivals')} className="hover:text-white cursor-pointer">New Arrivals</Link></li>
+                                <li><Link href={route('reviews')} className="hover:text-white cursor-pointer">Reviews</Link></li>
+                                <li><Link href={route('contact')} className="hover:text-white cursor-pointer">Contact Support</Link></li>
                             </ul>
                         </div>
                         <div>

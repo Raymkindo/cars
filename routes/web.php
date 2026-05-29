@@ -13,6 +13,16 @@ Route::get('/about', function () {
 Route::get('/cars', [\App\Http\Controllers\PublicCarController::class, 'index'])->name('cars.index');
 Route::get('/cars/{car}', [\App\Http\Controllers\PublicCarController::class, 'show'])->name('cars.show');
 
+Route::get('/new-arrivals', [\App\Http\Controllers\PublicCarController::class, 'newArrivals'])->name('new-arrivals');
+
+Route::get('/reviews', function () {
+    return Inertia::render('Reviews');
+})->name('reviews');
+
+Route::get('/contact', function () {
+    return Inertia::render('Contact');
+})->name('contact');
+
 // ── Public API (no auth required) ────────────────────────────────────────────
 // NOTE: These JSON API routes have been removed as the public Inertia pages
 // in PublicCarController already serve the same data. Add Laravel Sanctum

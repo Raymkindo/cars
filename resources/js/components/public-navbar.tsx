@@ -1,6 +1,6 @@
 import { dashboard, login, register } from '@/routes';
 import { SharedData } from '@/types';
-import { Link, usePage } from '@inertiajs/react';
+import { Link, usePage, router } from '@inertiajs/react';
 import { Heart, LogIn, Menu, Search, ShoppingCart, User } from 'lucide-react';
 import { useState } from 'react';
 import AppLogo from './app-logo';
@@ -18,6 +18,7 @@ import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 export function PublicNavbar() {
     const { auth } = usePage<SharedData>().props;
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     return (
         <header className="w-full border-b bg-white dark:bg-neutral-900 dark:border-neutral-800">
@@ -74,18 +75,28 @@ export function PublicNavbar() {
                     </Link>
 
                     {/* Search Bar - Desktop */}
-                    <div className="hidden md:flex flex-1 max-w-2xl mx-8 relative">
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            if (searchQuery.trim()) {
+                                router.get(route('cars.index'), { search: searchQuery });
+                            }
+                        }}
+                        className="hidden md:flex flex-1 max-w-2xl mx-8 relative"
+                    >
                         <div className="relative w-full">
                             <Input
                                 type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Search by Make, Model, or Keyword..."
                                 className="w-full pl-4 pr-10 h-11 rounded-r-none border-r-0 focus-visible:ring-0 focus-visible:border-primary"
                             />
                         </div>
-                        <Button className="h-11 rounded-l-none px-6">
+                        <Button type="submit" className="h-11 rounded-l-none px-6 cursor-pointer">
                             <Search className="h-5 w-5" />
                         </Button>
-                    </div>
+                    </form>
 
                     {/* Actions */}
                     <div className="flex items-center space-x-2 md:space-x-4">
@@ -113,19 +124,29 @@ export function PublicNavbar() {
 
                 {/* Mobile Search Bar */}
                 {isSearchOpen && (
-                    <div className="mt-4 md:hidden animate-in slide-in-from-top-2">
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            if (searchQuery.trim()) {
+                                router.get(route('cars.index'), { search: searchQuery });
+                            }
+                        }}
+                        className="mt-4 md:hidden animate-in slide-in-from-top-2"
+                    >
                         <div className="flex gap-2">
                             <Input
                                 type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Search cars..."
                                 className="flex-1"
                                 autoFocus
                             />
-                            <Button size="icon">
+                            <Button type="submit" size="icon" className="cursor-pointer">
                                 <Search className="h-4 w-4" />
                             </Button>
                         </div>
-                    </div>
+                    </form>
                 )}
             </div>
 
@@ -143,10 +164,11 @@ export function PublicNavbar() {
                             <SheetContent side="left" className="w-[300px] sm:w-[400px]">
                                 <nav className="flex flex-col gap-4 mt-8">
                                     <Link href="/" className="text-lg font-medium">Home</Link>
-                                    <Link href="#" className="text-lg font-medium">Stock List</Link>
-                                    <Link href="#" className="text-lg font-medium">New Arrivals</Link>
+                                    <Link href={route('cars.index')} className="text-lg font-medium">Stock List</Link>
+                                    <Link href={route('new-arrivals')} className="text-lg font-medium">New Arrivals</Link>
+                                    <Link href={route('reviews')} className="text-lg font-medium">Reviews</Link>
                                     <Link href="/about" className="text-lg font-medium">About Us</Link>
-                                    <Link href="#" className="text-lg font-medium">Contact</Link>
+                                    <Link href={route('contact')} className="text-lg font-medium">Contact</Link>
                                 </nav>
                             </SheetContent>
                         </Sheet>
@@ -157,25 +179,33 @@ export function PublicNavbar() {
                                 HOME
                             </Link>
                             <DropdownMenu>
-                                <DropdownMenuTrigger className="hover:text-primary-foreground/80 transition-colors py-3 border-b-2 border-transparent hover:border-white flex items-center gap-1 outline-none">
-                                    STOCK LIST
+                                <DropdownMenuTrigger asChild>
+                                    <Link href={route('cars.index')} className="hover:text-primary-foreground/80 transition-colors py-3 border-b-2 border-transparent hover:border-white flex items-center gap-1 outline-none cursor-pointer">
+                                        STOCK LIST
+                                    </Link>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent>
-                                    <DropdownMenuItem>All Stock</DropdownMenuItem>
-                                    <DropdownMenuItem>By Make</DropdownMenuItem>
-                                    <DropdownMenuItem>By Type</DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link href={route('cars.index')} className="w-full cursor-pointer">All Stock</Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link href={route('cars.index')} className="w-full cursor-pointer">By Make</Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link href={route('cars.index')} className="w-full cursor-pointer">By Type</Link>
+                                    </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
-                            <Link href="#" className="hover:text-primary-foreground/80 transition-colors py-3 border-b-2 border-transparent hover:border-white">
+                            <Link href={route('new-arrivals')} className="hover:text-primary-foreground/80 transition-colors py-3 border-b-2 border-transparent hover:border-white">
                                 NEW ARRIVALS
                             </Link>
-                            <Link href="#" className="hover:text-primary-foreground/80 transition-colors py-3 border-b-2 border-transparent hover:border-white">
+                            <Link href={route('reviews')} className="hover:text-primary-foreground/80 transition-colors py-3 border-b-2 border-transparent hover:border-white">
                                 REVIEWS
                             </Link>
                             <Link href="/about" className="hover:text-primary-foreground/80 transition-colors py-3 border-b-2 border-transparent hover:border-white">
                                 ABOUT US
                             </Link>
-                            <Link href="#" className="hover:text-primary-foreground/80 transition-colors py-3 border-b-2 border-transparent hover:border-white">
+                            <Link href={route('contact')} className="hover:text-primary-foreground/80 transition-colors py-3 border-b-2 border-transparent hover:border-white">
                                 CONTACT
                             </Link>
                         </nav>

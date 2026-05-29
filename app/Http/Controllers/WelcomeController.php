@@ -167,6 +167,27 @@ class WelcomeController extends Controller
                 ];
             });
 
+        // Fetch dynamic makes and models for the search panel
+        $availableMakes = Car::where('status', 'available')
+            ->select('make')
+            ->distinct()
+            ->orderBy('make')
+            ->pluck('make')
+            ->toArray();
+
+        $availableModels = Car::where('status', 'available')
+            ->select('make', 'model')
+            ->distinct()
+            ->orderBy('model')
+            ->get()
+            ->map(function ($car) {
+                return [
+                    'make'  => $car->make,
+                    'model' => $car->model,
+                ];
+            })
+            ->toArray();
+
         return Inertia::render('Welcome', [
             'canRegister'        => Features::enabled(Features::registration()),
             'featuredCars'       => $featuredCars,
@@ -175,6 +196,8 @@ class WelcomeController extends Controller
             'popularBodyTypes'   => $popularBodyTypes,
             'popularCars'        => $popularCars,
             'hotDeals'           => $hotDeals,
+            'availableMakes'     => $availableMakes,
+            'availableModels'    => $availableModels,
         ]);
     }
 }
