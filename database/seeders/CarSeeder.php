@@ -86,8 +86,8 @@ class CarSeeder extends Seeder
         ];
 
         foreach ($cars as $index => $car) {
-            // Generate a unique reference number like CAR-00001
-            $refNumber = 'CAR-' . str_pad($index + 1, 5, '0', STR_PAD_LEFT);
+            // Generate a unique reference number like KJ-00001
+            $refNumber = 'KJ-' . str_pad($index + 1, 5, '0', STR_PAD_LEFT);
 
             // Round-robin: distribute cars evenly across all dealer accounts
             $assignedDealerId = $dealerIds[$index % count($dealerIds)];

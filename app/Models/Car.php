@@ -45,7 +45,7 @@ class Car extends Model
 
         static::creating(function ($car) {
             if (empty($car->ref_number)) {
-                $car->ref_number = 'BF' . strtoupper(substr(uniqid(), -6));
+                $car->ref_number = 'KJ' . strtoupper(substr(uniqid(), -6));
             }
         });
     }
