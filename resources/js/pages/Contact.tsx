@@ -3,14 +3,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Mail, Phone, MapPin, Send, HelpCircle, Ship, Clock, Globe } from 'lucide-react';
 import { useState } from 'react';
+import { useForm } from '@inertiajs/react';
+import InputError from '@/components/input-error';
 
 export default function Contact() {
-    const [formData, setFormData] = useState({
+    const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         email: '',
         phone: '',
-        inquiryType: 'Sales & Inventory',
-        carOfInterest: '',
+        inquiry_type: 'Sales & Inventory',
+        car_of_interest: '',
         message: ''
     });
 
@@ -18,21 +20,16 @@ export default function Contact() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Visual validation and simulation
-        if (formData.name && formData.email && formData.message) {
-            setFormSubmitted(true);
-            setTimeout(() => {
-                setFormSubmitted(false);
-                setFormData({
-                    name: '',
-                    email: '',
-                    phone: '',
-                    inquiryType: 'Sales & Inventory',
-                    carOfInterest: '',
-                    message: ''
-                });
-            }, 5000);
-        }
+        post(route('contact.store'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setFormSubmitted(true);
+                reset();
+                setTimeout(() => {
+                    setFormSubmitted(false);
+                }, 5000);
+            }
+        });
     };
 
     return (
@@ -168,9 +165,10 @@ export default function Contact() {
                                                 type="text" 
                                                 required
                                                 placeholder="e.g. John Mtema"
-                                                value={formData.name}
-                                                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                                value={data.name}
+                                                onChange={(e) => setData('name', e.target.value)}
                                             />
+                                            <InputError message={errors.name} />
                                         </div>
                                         <div className="space-y-1.5">
                                             <label className="text-[10px] font-extrabold uppercase text-neutral-400">Email Address</label>
@@ -178,9 +176,10 @@ export default function Contact() {
                                                 type="email" 
                                                 required
                                                 placeholder="e.g. john@domain.com"
-                                                value={formData.email}
-                                                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                                                value={data.email}
+                                                onChange={(e) => setData('email', e.target.value)}
                                             />
+                                            <InputError message={errors.email} />
                                         </div>
                                     </div>
 
@@ -190,15 +189,16 @@ export default function Contact() {
                                             <Input 
                                                 type="tel" 
                                                 placeholder="e.g. +255 754 000 000"
-                                                value={formData.phone}
-                                                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                                                value={data.phone}
+                                                onChange={(e) => setData('phone', e.target.value)}
                                             />
+                                            <InputError message={errors.phone} />
                                         </div>
                                         <div className="space-y-1.5">
                                             <label className="text-[10px] font-extrabold uppercase text-neutral-400">Inquiry Topic</label>
                                             <select 
-                                                value={formData.inquiryType}
-                                                onChange={(e) => setFormData({...formData, inquiryType: e.target.value})}
+                                                value={data.inquiry_type}
+                                                onChange={(e) => setData('inquiry_type', e.target.value)}
                                                 className="flex h-10 w-full rounded border border-neutral-200 bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:border-neutral-800"
                                             >
                                                 <option value="Sales & Inventory">Sales & Stock List Details</option>
@@ -206,6 +206,7 @@ export default function Contact() {
                                                 <option value="Custom clearance">Port Customs & Taxes Help</option>
                                                 <option value="Corporate yards">Corporate Partnerships</option>
                                             </select>
+                                            <InputError message={errors.inquiry_type} />
                                         </div>
                                     </div>
 
@@ -214,9 +215,10 @@ export default function Contact() {
                                         <Input 
                                             type="text" 
                                             placeholder="e.g. Toyota Harrier 2018 or Ref: CAR-00042"
-                                            value={formData.carOfInterest}
-                                            onChange={(e) => setFormData({...formData, carOfInterest: e.target.value})}
+                                            value={data.car_of_interest}
+                                            onChange={(e) => setData('car_of_interest', e.target.value)}
                                         />
+                                        <InputError message={errors.car_of_interest} />
                                     </div>
 
                                     <div className="space-y-1.5">
@@ -225,19 +227,21 @@ export default function Contact() {
                                             required
                                             rows={4}
                                             placeholder="Write your specific requirements (transmission preference, budget limit, target port)..."
-                                            value={formData.message}
-                                            onChange={(e) => setFormData({...formData, message: e.target.value})}
+                                            value={data.message}
+                                            onChange={(e) => setData('message', e.target.value)}
                                             className="flex w-full rounded border border-neutral-200 bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring dark:border-neutral-800"
                                         />
+                                        <InputError message={errors.message} />
                                     </div>
 
                                     <Button 
                                         type="submit" 
                                         className="w-full text-white font-bold text-xs h-10 rounded-lg cursor-pointer flex items-center justify-center gap-2"
                                         style={{ background: 'linear-gradient(135deg, #1B3462, #ED1C24)' }}
+                                        disabled={processing}
                                     >
                                         <Send className="h-4 w-4" />
-                                        Submit Inquiry
+                                        {processing ? 'Submitting...' : 'Submit Inquiry'}
                                     </Button>
                                 </form>
                             )}

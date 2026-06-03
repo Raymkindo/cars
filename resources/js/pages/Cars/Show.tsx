@@ -1,6 +1,7 @@
 import PublicLayout from '@/layouts/public-layout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage, useForm, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
+import InputError from '@/components/input-error';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -108,17 +109,33 @@ export default function Show({ car }: { car: Car }) {
     const [includeInsurance, setIncludeInsurance] = useState(true);
     const [includeInspection, setIncludeInspection] = useState(true);
 
+    const { auth } = usePage<any>().props;
+
     // Inquiry Dialog Form States
     const [inquiryOpen, setInquiryOpen] = useState(false);
-    const [inquiryForm, setInquiryForm] = useState({
-        name: '',
-        email: '',
-        phone: '',
-        country: '',
+    const { data, setData, post, errors, reset } = useForm({
+        name: auth?.user?.name || '',
+        email: auth?.user?.email || '',
+        phone: auth?.user?.phone || '',
+        inquiry_type: 'Sales & Inventory',
+        car_of_interest: '',
         message: ''
     });
+    const [country, setCountry] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitSuccess, setSubmitSuccess] = useState(false);
+
+    // Autofill when auth updates
+    useEffect(() => {
+        if (auth?.user) {
+            setData(prev => ({
+                ...prev,
+                name: prev.name || auth.user.name || '',
+                email: prev.email || auth.user.email || '',
+                phone: prev.phone || auth.user.phone || ''
+            }));
+        }
+    }, [auth?.user]);
 
     // Toast Alerts State
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
@@ -187,18 +204,37 @@ export default function Show({ car }: { car: Car }) {
     const handleInquirySubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
-        // Simulate email API delay
-        setTimeout(() => {
-            setIsSubmitting(false);
-            setSubmitSuccess(true);
-        }, 1200);
+
+        const finalMessage = country 
+            ? `${data.message}\n\n[Country of Import: ${country}]` 
+            : data.message;
+
+        router.post(route('contact.store'), {
+            ...data,
+            car_id: car.id,
+            message: finalMessage
+        }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setIsSubmitting(false);
+                setSubmitSuccess(true);
+                reset();
+                setCountry('');
+            },
+            onError: () => {
+                setIsSubmitting(false);
+            }
+        });
     };
 
     // Prepare dynamic quote message
     const openQuoteRequest = () => {
-        setInquiryForm(prev => ({
+        const quoteMessage = `Hello! I would like to request a formal quote for the ${car.year} ${car.make} ${car.model} (Ref: ${car.ref_number}).\n\nEstimated CIF Details:\n- Destination Port: ${selectedPort.name}\n- Freight Rate: $${freightCost.toLocaleString()}\n- Marine Insurance: ${includeInsurance ? 'Included ($120)' : 'Excluded'}\n- Export Inspection: ${includeInspection && selectedPort.inspectionFee > 0 ? `Included ($${selectedPort.inspectionFee})` : 'Excluded'}\n- Calculated CIF Total: $${cifTotal.toLocaleString()}\n\nPlease verify shipping availability and send a proforma invoice.`;
+        
+        setData(prev => ({
             ...prev,
-            message: `Hello! I would like to request a formal quote for the ${car.year} ${car.make} ${car.model} (Ref: ${car.ref_number}).\n\nEstimated CIF Details:\n- Destination Port: ${selectedPort.name}\n- Freight Rate: $${freightCost.toLocaleString()}\n- Marine Insurance: ${includeInsurance ? 'Included ($120)' : 'Excluded'}\n- Export Inspection: ${includeInspection && selectedPort.inspectionFee > 0 ? `Included ($${selectedPort.inspectionFee})` : 'Excluded'}\n- Calculated CIF Total: $${cifTotal.toLocaleString()}\n\nPlease verify shipping availability and send a proforma invoice.`
+            car_of_interest: `${car.year} ${car.make} ${car.model} (Ref: ${car.ref_number})`,
+            message: quoteMessage
         }));
         setSubmitSuccess(false);
         setInquiryOpen(true);
@@ -941,7 +977,7 @@ export default function Show({ car }: { car: Car }) {
                                 <div className="space-y-2">
                                     <h3 className="text-2xl font-black text-neutral-900 dark:text-white">Inquiry Sent Successfully!</h3>
                                     <p className="text-sm text-neutral-500 max-w-sm mx-auto leading-relaxed font-medium">
-                                        Thank you, <span className="font-bold text-neutral-900 dark:text-white">{inquiryForm.name}</span>. A detailed Proforma Invoice (PI) with custom shipping quotes has been dispatched to your email <span className="font-bold text-neutral-900 dark:text-white">({inquiryForm.email})</span>.
+                                        Thank you, <span className="font-bold text-neutral-900 dark:text-white">{data.name}</span>. A detailed Proforma Invoice (PI) with custom shipping quotes has been dispatched to your email <span className="font-bold text-neutral-900 dark:text-white">({data.email})</span>.
                                     </p>
                                 </div>
                                 <div className="p-4 bg-neutral-50 dark:bg-neutral-900/50 rounded-2xl border border-neutral-100 dark:border-neutral-800 text-xs font-semibold text-neutral-400 text-center max-w-xs mx-auto">
@@ -975,10 +1011,11 @@ export default function Show({ car }: { car: Car }) {
                                                 type="text"
                                                 required
                                                 placeholder="e.g. John Doe"
-                                                value={inquiryForm.name}
-                                                onChange={(e) => setInquiryForm({...inquiryForm, name: e.target.value})}
+                                                value={data.name}
+                                                onChange={(e) => setData('name', e.target.value)}
                                                 className="w-full bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                                             />
+                                            <InputError message={errors.name} />
                                         </div>
                                         <div className="space-y-1">
                                             <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Email Address</label>
@@ -986,10 +1023,11 @@ export default function Show({ car }: { car: Car }) {
                                                 type="email"
                                                 required
                                                 placeholder="e.g. name@domain.com"
-                                                value={inquiryForm.email}
-                                                onChange={(e) => setInquiryForm({...inquiryForm, email: e.target.value})}
+                                                value={data.email}
+                                                onChange={(e) => setData('email', e.target.value)}
                                                 className="w-full bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                                             />
+                                            <InputError message={errors.email} />
                                         </div>
                                     </div>
 
@@ -999,18 +1037,19 @@ export default function Show({ car }: { car: Car }) {
                                             <input
                                                 type="tel"
                                                 placeholder="e.g. +254 700 000000"
-                                                value={inquiryForm.phone}
-                                                onChange={(e) => setInquiryForm({...inquiryForm, phone: e.target.value})}
+                                                value={data.phone}
+                                                onChange={(e) => setData('phone', e.target.value)}
                                                 className="w-full bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                                             />
+                                            <InputError message={errors.phone} />
                                         </div>
                                         <div className="space-y-1">
                                             <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Country of Import</label>
                                             <input
                                                 type="text"
                                                 placeholder="e.g. Kenya"
-                                                value={inquiryForm.country}
-                                                onChange={(e) => setInquiryForm({...inquiryForm, country: e.target.value})}
+                                                value={country}
+                                                onChange={(e) => setCountry(e.target.value)}
                                                 className="w-full bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-2.5 text-sm text-neutral-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                                             />
                                         </div>
@@ -1021,10 +1060,11 @@ export default function Show({ car }: { car: Car }) {
                                         <textarea
                                             rows={4}
                                             required
-                                            value={inquiryForm.message}
-                                            onChange={(e) => setInquiryForm({...inquiryForm, message: e.target.value})}
+                                            value={data.message}
+                                            onChange={(e) => setData('message', e.target.value)}
                                             className="w-full bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-3 text-xs leading-relaxed text-neutral-700 dark:text-neutral-300 focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
                                         />
+                                        <InputError message={errors.message} />
                                     </div>
 
                                     <div className="flex gap-2 p-3 bg-blue-50/50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-900/20 text-[10px] font-semibold text-neutral-500 leading-relaxed">

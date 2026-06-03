@@ -14,6 +14,7 @@ import {
     ChevronRight,
     ChevronDown,
     ChevronUp,
+    Mail,
 } from 'lucide-react';
 import React, { PropsWithChildren, useState, useEffect } from 'react';
 import { SharedData } from '@/types';
@@ -43,13 +44,14 @@ interface NavLinkProps {
     active?: boolean;
     collapsed?: boolean;
     indent?: boolean;
+    badge?: number;
 }
 
-function NavLink({ href, icon, label, active, collapsed, indent = false }: NavLinkProps) {
+function NavLink({ href, icon, label, active, collapsed, indent = false, badge }: NavLinkProps) {
     const content = (
         <Link
             href={href}
-            className={`flex items-center gap-3 px-3 py-2 text-sm font-medium transition-colors relative duration-150 ${
+            className={`flex items-center justify-between px-3 py-2 text-sm font-medium transition-colors relative duration-150 ${
                 indent && !collapsed ? 'pl-8' : ''
             } ${
                 active
@@ -57,8 +59,20 @@ function NavLink({ href, icon, label, active, collapsed, indent = false }: NavLi
                     : 'text-neutral-400 hover:bg-neutral-800 hover:text-white border-l-4 border-transparent'
             }`}
         >
-            <div className="flex-shrink-0">{icon}</div>
-            {!collapsed && <span className="truncate">{label}</span>}
+            <div className="flex items-center gap-3 min-w-0">
+                <div className="flex-shrink-0">{icon}</div>
+                {!collapsed && <span className="truncate">{label}</span>}
+            </div>
+
+            {!collapsed && badge && badge > 0 ? (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#ED1C24] text-white leading-none flex items-center justify-center">
+                    {badge}
+                </span>
+            ) : null}
+
+            {collapsed && badge && badge > 0 ? (
+                <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-[#ED1C24] rounded-full border border-neutral-900" />
+            ) : null}
         </Link>
     );
 
@@ -81,7 +95,7 @@ function NavLink({ href, icon, label, active, collapsed, indent = false }: NavLi
 }
 
 export default function AdminLayout({ children }: PropsWithChildren) {
-    const { auth } = usePage<SharedData>().props;
+    const { auth, unread_inquiries_count } = usePage<SharedData>().props;
     const getInitials = useInitials();
     const currentPath = window.location.pathname;
 
@@ -165,6 +179,19 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                 </div>
 
                 <div className="flex items-center h-full gap-2">
+                    {unread_inquiries_count && unread_inquiries_count > 0 ? (
+                        <Link 
+                            href={route('admin.inquiries.index')}
+                            className="relative flex items-center justify-center p-1.5 hover:bg-neutral-850 rounded-full text-neutral-300 hover:text-white transition-colors cursor-pointer mr-1"
+                            title={`${unread_inquiries_count} unread inquiries`}
+                        >
+                            <Mail className="h-4.5 w-4.5" />
+                            <span className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 bg-[#ED1C24] text-[8px] text-white font-black rounded-full flex items-center justify-center border border-neutral-900 animate-pulse">
+                                {unread_inquiries_count}
+                            </span>
+                        </Link>
+                    ) : null}
+
                     <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold tracking-wider uppercase bg-red-950/80 border border-red-800/40 text-red-400">
                         Super Admin
                     </span>
@@ -277,6 +304,14 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                                 label="Users"
                                 active={currentPath.startsWith('/admin/users')}
                                 collapsed={isCollapsed}
+                            />
+                            <NavLink
+                                href={route('admin.inquiries.index')}
+                                icon={<Mail className="h-5 w-5" />}
+                                label="Inquiries"
+                                active={currentPath.startsWith('/admin/inquiries')}
+                                collapsed={isCollapsed}
+                                badge={unread_inquiries_count}
                             />
                             <NavLink
                                 href={route('admin.analytics.index')}

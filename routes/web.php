@@ -22,6 +22,7 @@ Route::get('/reviews', function () {
 Route::get('/contact', function () {
     return Inertia::render('Contact');
 })->name('contact');
+Route::post('/contact', [\App\Http\Controllers\ContactInquiryController::class, 'store'])->name('contact.store');
 
 // ── Public API (no auth required) ────────────────────────────────────────────
 // NOTE: These JSON API routes have been removed as the public Inertia pages
@@ -73,6 +74,12 @@ Route::middleware(['auth', 'verified', 'admin'])
         // Appearance / Site settings
         Route::get('/appearance', [\App\Http\Controllers\AppearanceController::class, 'index'])->name('appearance.index');
         Route::post('/appearance', [\App\Http\Controllers\AppearanceController::class, 'update'])->name('appearance.update');
+
+        // Contact Inquiries management
+        Route::get('/inquiries', [\App\Http\Controllers\ContactInquiryController::class, 'index'])->name('inquiries.index');
+        Route::patch('/inquiries/{inquiry}/read', [\App\Http\Controllers\ContactInquiryController::class, 'markAsRead'])->name('inquiries.read');
+        Route::post('/inquiries/{inquiry}/reply', [\App\Http\Controllers\ContactInquiryController::class, 'reply'])->name('inquiries.reply');
+        Route::delete('/inquiries/{inquiry}', [\App\Http\Controllers\ContactInquiryController::class, 'destroy'])->name('inquiries.destroy');
     });
 
 // ── Dealer routes ─────────────────────────────────────────────────────────────
@@ -88,6 +95,12 @@ Route::middleware(['auth', 'verified', 'dealer'])
         Route::get('/cars', [\App\Http\Controllers\CarController::class, 'manage'])->name('cars.index');
         Route::get('/cars/create', [\App\Http\Controllers\CarController::class, 'create'])->name('cars.create');
         Route::get('/cars/{car}/edit', [\App\Http\Controllers\CarController::class, 'edit'])->name('cars.edit');
+
+        // Contact Inquiries management
+        Route::get('/inquiries', [\App\Http\Controllers\ContactInquiryController::class, 'index'])->name('inquiries.index');
+        Route::patch('/inquiries/{inquiry}/read', [\App\Http\Controllers\ContactInquiryController::class, 'markAsRead'])->name('inquiries.read');
+        Route::post('/inquiries/{inquiry}/reply', [\App\Http\Controllers\ContactInquiryController::class, 'reply'])->name('inquiries.reply');
+        Route::delete('/inquiries/{inquiry}', [\App\Http\Controllers\ContactInquiryController::class, 'destroy'])->name('inquiries.destroy');
     });
 
 // ── Buyer routes ──────────────────────────────────────────────────────────────

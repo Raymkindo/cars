@@ -6,6 +6,7 @@ import {
     LogOut,
     Plus,
     Store,
+    Mail,
 } from 'lucide-react';
 import { PropsWithChildren } from 'react';
 import { SharedData } from '@/types';
@@ -26,26 +27,30 @@ interface NavLinkProps {
     icon: React.ReactNode;
     label: string;
     active?: boolean;
+    badge?: React.ReactNode;
 }
 
-function NavLink({ href, icon, label, active }: NavLinkProps) {
+function NavLink({ href, icon, label, active, badge }: NavLinkProps) {
     return (
         <Link
             href={href}
-            className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+            className={`flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                 active
                     ? 'bg-primary/10 text-primary'
                     : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'
             }`}
         >
-            {icon}
-            {label}
+            <span className="flex items-center gap-3">
+                {icon}
+                <span>{label}</span>
+            </span>
+            {badge}
         </Link>
     );
 }
 
 export default function DealerLayout({ children }: PropsWithChildren) {
-    const { auth } = usePage<SharedData>().props;
+    const { auth, unread_inquiries_count } = usePage<SharedData>().props;
     const getInitials = useInitials();
     const currentPath = window.location.pathname;
 
@@ -81,6 +86,19 @@ export default function DealerLayout({ children }: PropsWithChildren) {
                             href={route('dealer.cars.create')}
                             icon={<Plus className="h-5 w-5" />}
                             label="Add New Car"
+                        />
+                        <NavLink
+                            href={route('dealer.inquiries.index')}
+                            icon={<Mail className="h-5 w-5" />}
+                            label="Inquiries"
+                            active={currentPath.startsWith('/dealer/inquiries')}
+                            badge={
+                                unread_inquiries_count && unread_inquiries_count > 0 ? (
+                                    <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-red-500 text-white animate-pulse">
+                                        {unread_inquiries_count}
+                                    </span>
+                                ) : null
+                            }
                         />
                     </nav>
 
